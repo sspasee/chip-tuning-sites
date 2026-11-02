@@ -303,6 +303,7 @@ SOCIALS_MAP = {
     "kem-01": [
         {"name": "Telegram", "url": "https://t.me/+79069839530"},
         {"name": "ВКонтакте", "url": "https://vk.com"},
+        {"name": "Instagram", "url": "https://www.instagram.com/motorslab.kem?utm_source=qr"},
     ],
     "kem-02": [
         {"name": "WhatsApp", "url": "https://wa.me/79955132353"},
