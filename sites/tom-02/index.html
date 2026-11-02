@@ -1346,33 +1346,11 @@ h2 {
       </div>
     </div>
     
-    <div class="service-card price-mini-card is-more-service">
-      <div class="service-card-body">
-        <h3 class="service-title">Тюнинг выхлопной системы</h3>
-        
-      </div>
-      <div class="service-card-footer">
-        
-        <a class="service-action-btn" href="tel:+79627774000">Записаться</a>
-      </div>
-    </div>
-    
-    <div class="service-card price-mini-card is-more-service">
-      <div class="service-card-body">
-        <h3 class="service-title">Тюнинг двигателя</h3>
-        
-      </div>
-      <div class="service-card-footer">
-        
-        <a class="service-action-btn" href="tel:+79627774000">Записаться</a>
-      </div>
-    </div>
-    
   </div>
   
   <div class="more-services-wrap">
     <button type="button" class="btn-more-services" id="btnToggleMoreServices">
-      <span class="btn-more-text">Ещё услуги (13)</span>
+      <span class="btn-more-text">Ещё услуги (11)</span>
       <span class="btn-more-arrow">↓</span>
     </button>
   </div>
@@ -1386,7 +1364,7 @@ h2 {
   <div class="about-card">
     <div class="section-badge">Преимущества</div>
     <h2>За что нас хвалят</h2>
-    <p class="about-text">Сервис SibTune в Томске специализируется на тюнинге двигателя и ремонте выхлопных систем. Выполняются чип-тюнинг с прошивкой под Евро-2, диагностика, аргонная сварка нержавеющих комплектующих и цветных металлов, замена гофр, резонаторов и фланцевых соединений. Удаление катализатора и сажевого фильтра проводится по запросу владельца автомобиля.</p>
+    <p class="about-text">Сервис SibTune в Томске специализируется на чип-тюнинге и ремонте выхлопных систем. Выполняются чип-тюнинг с прошивкой под Евро-2, диагностика, аргонная сварка нержавеющих комплектующих и цветных металлов, замена гофр, резонаторов и фланцевых соединений. Удаление катализатора и сажевого фильтра проводится по запросу владельца автомобиля.</p>
   </div>
 </section>
 
@@ -1491,7 +1469,7 @@ h2 {
   const servicesGrid = document.querySelector('.services-grid');
   if (toggleBtn && servicesGrid) {
     let isExpanded = false;
-    const moreCount = '13';
+    const moreCount = '11';
     toggleBtn.addEventListener('click', () => {
       isExpanded = !isExpanded;
       servicesGrid.classList.toggle('expanded', isExpanded);
