@@ -604,44 +604,6 @@ def save_statuses(statuses):
     STATUS_FILE.write_text(json.dumps(statuses, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def load_statuses():
-    """Загружает словарь статусов сайтов из data/sites_status.json"""
-    if not STATUS_FILE.exists():
-        statuses = {}
-        for p in sorted((ROOT / "data" / "raw").glob("*.csv")):
-            statuses[p.stem] = {"status": "active"}
-        save_statuses(statuses)
-        return statuses
-    try:
-        return json.loads(STATUS_FILE.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
-
-
-def save_statuses(statuses):
-    """Сохраняет словарь статусов в data/sites_status.json"""
-    STATUS_FILE.write_text(json.dumps(statuses, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-
-
-def load_statuses():
-    """Загружает словарь статусов сайтов из data/sites_status.json"""
-    if not STATUS_FILE.exists():
-        statuses = {}
-        for p in sorted((ROOT / "data" / "raw").glob("*.csv")):
-            statuses[p.stem] = {"status": "active"}
-        save_statuses(statuses)
-        return statuses
-    try:
-        return json.loads(STATUS_FILE.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
-
-
-def save_statuses(statuses):
-    """Сохраняет словарь статусов в data/sites_status.json"""
-    STATUS_FILE.write_text(json.dumps(statuses, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-
-
 def build(slug):
     statuses = load_statuses()
     slug_status_info = statuses.get(slug, {"status": "active"})
@@ -828,7 +790,7 @@ def build(slug):
 
 
 def build_catalog():
-    """Генерирует сводный каталог сайтов sites/index.html с фильтрами и статусами"""
+    """Генерирует сводный каталог сайтов sites/index.html с фильтрами, статусами и переключателями (✓/✗)"""
     statuses = load_statuses()
     raw_dir = ROOT / "data" / "raw"
     raw_files = sorted(raw_dir.glob("*.csv"))
@@ -901,6 +863,8 @@ def build_catalog():
         else:
             tom_items.append(item)
 
+    total_count = len(kem_items) + len(tom_items)
+
     def render_card(it):
         slug = it["slug"]
         name = html.escape(it["name"])
@@ -909,30 +873,7 @@ def build_catalog():
         accent = it["theme_accent"]
         theme_name = html.escape(it["theme_name"])
         city_key = it["city_key"]
-
-        if it["is_hidden"]:
-            reason = html.escape(it["reason"])
-            return f"""
-        <div class="site-card site-card-hidden" data-city="{city_key}" data-status="hidden" style="display: none;">
-            <div class="site-card-header">
-                <div>
-                    <span class="badge badge-gray">Отключён по запросу</span>
-                    <span class="slug-tag">{slug}</span>
-                </div>
-            </div>
-            <div class="theme-badge" style="background: rgba(148, 163, 184, 0.1); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.25);">
-                <span class="theme-dot" style="background: #94a3b8;"></span> {theme_name}
-            </div>
-            <h3 class="site-title">{name}</h3>
-            <p class="site-address">{address}</p>
-            <p class="site-phone muted" style="color: #64748b; font-style: italic;">Контакты скрыты по запросу</p>
-            <div class="card-hidden-reason">
-                <strong>Причина:</strong> {reason}
-            </div>
-            <div class="site-actions">
-                <a href="{slug}/index.html" class="btn btn-muted" target="_blank">Страница-заглушка →</a>
-            </div>
-        </div>"""
+        is_hidden = it["is_hidden"]
 
         st_raw = it["site_status_raw"].lower()
         if st_raw in ("нет", "нет сайта"):
@@ -954,12 +895,16 @@ def build_catalog():
         featured_class = " featured-site-card" if slug == "tom-01" else ""
         top_leader_badge = ""
         if slug == "tom-01":
-            top_leader_badge = '<span class="badge" style="background:#f5a623;color:#000;font-weight:800;margin-bottom:8px;display:inline-block;">★ ТОП-ЛИДЕР (5.0★ • 367 отзывов)</span>\n            '
+            top_leader_badge = '<span class="badge" style="background:#f5a623;color:#000;font-weight:800;margin-bottom:8px;display:inline-block;">★ ТОП-ЛИДЕР (5.0★ • 367 отзывов)</span> '
 
         rating_str = f"{it['rating']}★ ({it['reviews_count']})" if it["rating"] else ""
 
+        checked_attr = "" if is_hidden else "checked"
+        hidden_card_class = " is-card-hidden" if is_hidden else ""
+        initial_status = "hidden" if is_hidden else "active"
+
         return f"""
-        <div class="site-card{featured_class}" data-city="{city_key}" data-status="active">
+        <div class="site-card{featured_class}{hidden_card_class}" data-slug="{slug}" data-city="{city_key}" data-status="{initial_status}" data-name="{name}">
             {top_leader_badge}<div class="site-card-header">
                 <div>
                     <span class="badge {badge_class}">{badge_text}</span>
@@ -967,6 +912,27 @@ def build_catalog():
                 </div>
                 <div class="rating">{rating_str}</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="{slug}" {checked_attr}>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: {accent}1a; color: {accent}; border: 1px solid {accent}44;">
                 <span class="theme-dot" style="background: {accent};"></span> {theme_name}
             </div>
@@ -974,22 +940,18 @@ def build_catalog():
             <p class="site-address">{address}</p>
             <p class="site-phone">{phone}</p>
             <div class="site-actions">
-                <a href="{slug}/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="{slug}/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>"""
 
     kem_cards_html = "".join(render_card(it) for it in kem_items)
     tom_cards_html = "".join(render_card(it) for it in tom_items)
 
-    hidden_stat_badge = f'<div class="stat-item stat-item-hidden">Скрыто по запросу: <strong class="badge-hidden-count">{total_hidden}</strong></div>' if total_hidden > 0 else ""
-
-    tabs_html = f'''<div class="tabs-filter">
-            <button type="button" class="tab-btn active" data-filter="all">Все активные ({total_active})</button>
-            <button type="button" class="tab-btn" data-filter="kem">Кемерово ({kem_active})</button>
-            <button type="button" class="tab-btn" data-filter="tom">Томск ({tom_active})</button>'''
-    if total_hidden > 0:
-        tabs_html += f'\n            <button type="button" class="tab-btn tab-btn-hidden" data-filter="hidden">Скрытые ({total_hidden})</button>'
-    tabs_html += '\n        </div>'
+    default_statuses_dict = {
+        it["slug"]: ("hidden" if it["is_hidden"] else "active")
+        for it in (kem_items + tom_items)
+    }
+    default_statuses_json = json.dumps(default_statuses_dict, ensure_ascii=False)
 
     catalog_html = f"""<!DOCTYPE html>
 <html lang="ru">
@@ -1021,7 +983,7 @@ def build_catalog():
             color: var(--text);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             line-height: 1.5;
-            padding: 24px 16px;
+            padding: 24px 16px 110px;
         }}
         .container {{
             max-width: 1200px;
@@ -1088,7 +1050,7 @@ def build_catalog():
             color: var(--text-muted);
             font-size: 14px;
             font-weight: 600;
-            padding: 8px 20px;
+            padding: 8px 18px;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.15s ease;
@@ -1144,7 +1106,8 @@ def build_catalog():
             padding: 16px;
             display: flex;
             flex-direction: column;
-            transition: transform 0.15s, border-color 0.15s;
+            transition: transform 0.15s, border-color 0.15s, opacity 0.2s, background 0.2s;
+            position: relative;
         }}
         .site-card:hover {{
             border-color: var(--primary);
@@ -1155,10 +1118,14 @@ def build_catalog():
             background: linear-gradient(180deg, #1b212f 0%, #0e1117 100%) !important;
             box-shadow: 0 4px 20px rgba(245, 166, 35, 0.15);
         }}
-        .site-card-hidden {{
-            border-color: #334155;
+        .site-card.is-card-hidden {{
+            border-color: rgba(239, 68, 68, 0.35);
             background: #111827;
-            opacity: 0.94;
+            opacity: 0.65;
+        }}
+        .site-card.is-card-hidden:hover {{
+            opacity: 0.92;
+            border-color: rgba(239, 68, 68, 0.6);
         }}
         .site-card-header {{
             display: flex;
@@ -1193,6 +1160,114 @@ def build_catalog():
             color: #facc15;
             font-weight: bold;
         }}
+
+        /* Интерактивный переключатель статуса на карточке (галочка ✓ / крестик ✗) */
+        .card-toggle-wrap {{
+            margin-bottom: 12px;
+        }}
+        .toggle-status-box {{
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 44px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.2s ease;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1.5px solid rgba(16, 185, 129, 0.45);
+        }}
+        .toggle-status-box:hover {{
+            filter: brightness(1.12);
+        }}
+        .toggle-status-box input.business-toggle {{
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+        }}
+        .toggle-indicator {{
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 16px;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            background: #10b981;
+            color: #ffffff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }}
+        .toggle-glyph {{
+            line-height: 1;
+        }}
+        .toggle-glyph-check {{
+            display: inline-block;
+        }}
+        .toggle-glyph-cross {{
+            display: none;
+        }}
+        .toggle-label-wrap {{
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.25;
+        }}
+        .toggle-state-text.state-active {{
+            display: inline-block;
+            color: #34d399;
+        }}
+        .toggle-state-text.state-hidden {{
+            display: none;
+            color: #f87171;
+        }}
+
+        /* Состояние переключателя, когда карточка скрыта */
+        .site-card.is-card-hidden .toggle-status-box {{
+            background: rgba(239, 68, 68, 0.14);
+            border-color: rgba(239, 68, 68, 0.55);
+        }}
+        .site-card.is-card-hidden .toggle-indicator {{
+            background: #ef4444;
+        }}
+        .site-card.is-card-hidden .toggle-glyph-check {{
+            display: none;
+        }}
+        .site-card.is-card-hidden .toggle-glyph-cross {{
+            display: inline-block;
+        }}
+        .site-card.is-card-hidden .toggle-state-text.state-active {{
+            display: none;
+        }}
+        .site-card.is-card-hidden .toggle-state-text.state-hidden {{
+            display: inline-block;
+        }}
+
+        .card-hidden-banner {{
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px dashed rgba(239, 68, 68, 0.45);
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 12px;
+            color: #fca5a5;
+            margin-bottom: 12px;
+        }}
+        .site-card.is-card-hidden .card-hidden-banner {{
+            display: flex;
+        }}
+        .hidden-banner-icon {{
+            font-weight: bold;
+            color: #ef4444;
+        }}
+
         .theme-badge {{
             display: inline-flex;
             align-items: center;
@@ -1227,19 +1302,6 @@ def build_catalog():
             font-family: monospace;
             margin-bottom: 14px;
         }}
-        .card-hidden-reason {{
-            background: rgba(15, 23, 42, 0.75);
-            border: 1px solid #334155;
-            border-radius: 6px;
-            padding: 8px 10px;
-            font-size: 12.5px;
-            color: #94a3b8;
-            margin-bottom: 14px;
-            line-height: 1.4;
-        }}
-        .card-hidden-reason strong {{
-            color: #e2e8f0;
-        }}
         .site-actions {{
             margin-top: auto;
             display: flex;
@@ -1263,15 +1325,10 @@ def build_catalog():
         .btn-primary:hover {{
             background: var(--primary-hover);
         }}
-        .btn-muted {{
-            background: #1e293b;
+        .site-card.is-card-hidden .btn-primary {{
+            background: #334155;
             color: #cbd5e1;
             border: 1px solid #475569;
-        }}
-        .btn-muted:hover {{
-            background: #334155;
-            color: #ffffff;
-            border-color: #64748b;
         }}
         footer {{
             text-align: center;
@@ -1280,6 +1337,147 @@ def build_catalog():
             margin-top: 48px;
             padding-top: 24px;
             border-top: 1px solid var(--border);
+        }}
+
+        /* Компактный плавающий бар управления внизу страницы */
+        .floating-bar {{
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 24px);
+            max-width: 880px;
+            background: rgba(15, 23, 42, 0.94);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.15);
+            border-radius: 14px;
+            padding: 8px 14px;
+            z-index: 9999;
+        }}
+        .fb-content {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }}
+        .fb-stats {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+        .fb-stat-pill {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+        }}
+        .fb-stat-check {{
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+        }}
+        .fb-stat-cross {{
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+        }}
+        .fb-filters {{
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }}
+        .fb-actions {{
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }}
+        .fb-btn {{
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }}
+        .fb-btn:hover {{
+            background: var(--surface-hover);
+            border-color: var(--primary);
+        }}
+        .fb-filter.active {{
+            background: var(--primary);
+            color: #0f172a;
+            border-color: var(--primary);
+            font-weight: 700;
+        }}
+        .fb-btn-copy {{
+            background: rgba(56, 189, 248, 0.12);
+            color: #38bdf8;
+            border-color: rgba(56, 189, 248, 0.35);
+        }}
+        .fb-btn-copy:hover {{
+            background: rgba(56, 189, 248, 0.22);
+        }}
+
+        /* Toast уведомление */
+        .toast-notification {{
+            position: fixed;
+            bottom: 84px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #0f172a;
+            border: 1px solid #38bdf8;
+            color: #f8fafc;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.25s ease;
+            z-index: 10000;
+            max-width: 90vw;
+            text-align: center;
+        }}
+        .toast-notification.show {{
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }}
+
+        @media (max-width: 768px) {{
+            body {{
+                padding-bottom: 130px !important;
+            }}
+            .floating-bar {{
+                bottom: 8px;
+                padding: 8px 10px;
+            }}
+            .fb-content {{
+                justify-content: center;
+            }}
+            .fb-stats, .fb-filters, .fb-actions {{
+                justify-content: center;
+            }}
+            .fb-btn {{
+                min-height: 42px;
+                padding: 6px 10px;
+                font-size: 12px;
+            }}
         }}
     </style>
 </head>
@@ -1293,15 +1491,23 @@ def build_catalog():
             <h1>Чип-тюнинг сервисы: Демо-лендинги</h1>
             <p>Готовые мобильные сайты для автосервисов чип-тюнинга Кемерово и Томска</p>
             <div class="stats-bar">
-                <div class="stat-item">Активных сайтов: <strong>{total_active}</strong></div>
-                <div class="stat-item">Кемерово: <strong>{kem_active}</strong></div>
-                <div class="stat-item">Томск: <strong>{tom_active}</strong></div>
+                <div class="stat-item">Активных сайтов: <strong id="stat-active-count">{total_active}</strong></div>
+                <div class="stat-item">Кемерово: <strong id="stat-kem-count">{kem_active}</strong></div>
+                <div class="stat-item">Томск: <strong id="stat-tom-count">{tom_active}</strong></div>
                 <div class="stat-item">Горячих лидов (без сайта): <strong>{hot_leads}</strong></div>
-                {hidden_stat_badge}
+                <div class="stat-item stat-item-hidden" id="stat-hidden-box" style="{'display: none;' if total_hidden == 0 else ''}">
+                    Скрыто (с крестиком): <strong class="badge-hidden-count" id="stat-hidden-count">{total_hidden}</strong>
+                </div>
             </div>
         </header>
 
-        {tabs_html}
+        <div class="tabs-filter">
+            <button type="button" class="tab-btn active" data-filter="active">Все активные (✓ <span id="tab-active-cnt">{total_active}</span>)</button>
+            <button type="button" class="tab-btn" data-filter="kem">Кемерово (<span id="tab-kem-cnt">{kem_active}</span>)</button>
+            <button type="button" class="tab-btn" data-filter="tom">Томск (<span id="tab-tom-cnt">{tom_active}</span>)</button>
+            <button type="button" class="tab-btn tab-btn-hidden" data-filter="hidden">Скрытые (✗ <span id="tab-hidden-cnt">{total_hidden}</span>)</button>
+            <button type="button" class="tab-btn" data-filter="all">Все (<span id="tab-all-cnt">{total_count}</span>)</button>
+        </div>
 
         <section class="city-section" id="section-kem">
             <h2 class="city-title">г. Кемерово <span class="city-count" id="count-kem">({kem_active} объектов)</span></h2>
@@ -1322,8 +1528,47 @@ def build_catalog():
         </footer>
     </div>
 
+    <!-- Плавающая панель управления со счётчиками и кнопками -->
+    <div class="floating-bar" id="floating-bar">
+        <div class="fb-content">
+            <div class="fb-stats">
+                <span class="fb-stat-pill fb-stat-check" title="Активных бизнесов с галочкой">
+                    <span class="fb-badge-icon">✓</span> <span id="fb-active-cnt">{total_active}</span>
+                </span>
+                <span class="fb-stat-pill fb-stat-cross" title="Скрытых бизнесов с крестиком">
+                    <span class="fb-badge-icon">✗</span> <span id="fb-hidden-cnt">{total_hidden}</span>
+                </span>
+            </div>
+            <div class="fb-filters">
+                <button type="button" class="fb-btn fb-filter active" data-fb-filter="active">✓ Активные</button>
+                <button type="button" class="fb-btn fb-filter" data-fb-filter="all">Все</button>
+                <button type="button" class="fb-btn fb-filter" data-fb-filter="hidden">✗ Скрытые</button>
+            </div>
+            <div class="fb-actions">
+                <button type="button" class="fb-btn fb-action" id="fb-reset-btn" title="Восстановить все галочки по умолчанию">
+                    <span class="btn-icon">🔄</span> <span class="btn-text">Сбросить</span>
+                </button>
+                <button type="button" class="fb-btn fb-action fb-btn-copy" id="fb-copy-btn" title="Скопировать список скрытых бизнесов в буфер обмена">
+                    <span class="btn-icon">📋</span> <span class="btn-text">Скопировать скрытые</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="toast-notification" id="toast-notification"></div>
+
     <script>
     document.addEventListener('DOMContentLoaded', () => {{
+        const STORAGE_KEY = 'chip_tuning_sites_status';
+        const defaultStatuses = {default_statuses_json};
+        
+        let savedStatuses = {{}};
+        try {{
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) savedStatuses = JSON.parse(raw);
+        }} catch (e) {{
+            console.error('Failed to parse localStorage', e);
+        }}
+
         const tabs = document.querySelectorAll('.tab-btn');
         const cards = document.querySelectorAll('.site-card');
         const secKem = document.getElementById('section-kem');
@@ -1331,8 +1576,88 @@ def build_catalog():
         const countKem = document.getElementById('count-kem');
         const countTom = document.getElementById('count-tom');
 
+        const statActive = document.getElementById('stat-active-count');
+        const statHidden = document.getElementById('stat-hidden-count');
+        const statKem = document.getElementById('stat-kem-count');
+        const statTom = document.getElementById('stat-tom-count');
+        const statHiddenBox = document.getElementById('stat-hidden-box');
+
+        const tabActiveCnt = document.getElementById('tab-active-cnt');
+        const tabKemCnt = document.getElementById('tab-kem-cnt');
+        const tabTomCnt = document.getElementById('tab-tom-cnt');
+        const tabHiddenCnt = document.getElementById('tab-hidden-cnt');
+        const tabAllCnt = document.getElementById('tab-all-cnt');
+
+        const fbActiveCnt = document.getElementById('fb-active-cnt');
+        const fbHiddenCnt = document.getElementById('fb-hidden-cnt');
+        const fbFilters = document.querySelectorAll('.fb-filter');
+        const btnReset = document.getElementById('fb-reset-btn');
+        const btnCopy = document.getElementById('fb-copy-btn');
+        const toast = document.getElementById('toast-notification');
+
+        let toastTimer = null;
+        function showToast(message) {{
+            if (!toast) return;
+            toast.textContent = message;
+            toast.classList.add('show');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {{
+                toast.classList.remove('show');
+            }}, 2600);
+        }}
+
+        // Инициализация карточек из сохранённого состояния или значений по умолчанию
+        cards.forEach(card => {{
+            const slug = card.dataset.slug;
+            const saved = savedStatuses[slug];
+            let isActive = true;
+            if (saved !== undefined) {{
+                isActive = (saved === 'active' || saved === true);
+            }} else if (defaultStatuses[slug] !== undefined) {{
+                isActive = (defaultStatuses[slug] === 'active');
+            }}
+
+            const checkbox = card.querySelector('.business-toggle');
+            if (checkbox) {{
+                checkbox.checked = isActive;
+            }}
+            card.classList.toggle('is-card-hidden', !isActive);
+            card.dataset.status = isActive ? 'active' : 'hidden';
+
+            if (checkbox) {{
+                checkbox.addEventListener('change', (e) => {{
+                    const isChecked = e.target.checked;
+                    const businessName = card.dataset.name || slug;
+
+                    // Сохраняем в localStorage
+                    savedStatuses[slug] = isChecked ? 'active' : 'hidden';
+                    try {{
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedStatuses));
+                    }} catch (err) {{
+                        console.error('LocalStorage error', err);
+                    }}
+
+                    card.classList.toggle('is-card-hidden', !isChecked);
+                    card.dataset.status = isChecked ? 'active' : 'hidden';
+
+                    updateAllCounts();
+
+                    if (isChecked) {{
+                        showToast(`✓ «${{businessName}}» включён в показ`);
+                    }} else {{
+                        showToast(`✗ «${{businessName}}» скрыт из каталога`);
+                    }}
+                }});
+            }}
+        }});
+
+        let currentFilter = 'active';
+
         function applyFilter(filter) {{
+            currentFilter = filter;
+
             tabs.forEach(t => t.classList.toggle('active', t.dataset.filter === filter));
+            fbFilters.forEach(f => f.classList.toggle('active', f.dataset.fbFilter === filter));
 
             let visibleKem = 0;
             let visibleTom = 0;
@@ -1342,7 +1667,7 @@ def build_catalog():
                 const city = card.dataset.city;
                 let show = false;
 
-                if (filter === 'all') {{
+                if (filter === 'active') {{
                     show = !isHidden;
                 }} else if (filter === 'kem') {{
                     show = !isHidden && (city === 'kem');
@@ -1350,6 +1675,8 @@ def build_catalog():
                     show = !isHidden && (city === 'tom');
                 }} else if (filter === 'hidden') {{
                     show = isHidden;
+                }} else if (filter === 'all') {{
+                    show = true;
                 }}
 
                 card.style.display = show ? '' : 'none';
@@ -1367,6 +1694,66 @@ def build_catalog():
                 secTom.style.display = visibleTom > 0 ? '' : 'none';
                 if (countTom) countTom.textContent = '(' + visibleTom + ' объектов)';
             }}
+
+            let emptyMsg = document.getElementById('catalog-empty-msg');
+            if (!emptyMsg && secTom && secTom.parentNode) {{
+                emptyMsg = document.createElement('div');
+                emptyMsg.id = 'catalog-empty-msg';
+                emptyMsg.style.cssText = 'text-align:center; padding:48px 16px; color:#94a3b8; font-size:16px; background:rgba(30,41,59,0.5); border-radius:12px; margin:24px 0; border:1px dashed #334155;';
+                secTom.parentNode.insertBefore(emptyMsg, secTom.nextSibling);
+            }}
+
+            if (emptyMsg) {{
+                if (visibleKem === 0 && visibleTom === 0) {{
+                    emptyMsg.style.display = '';
+                    if (filter === 'hidden') {{
+                        emptyMsg.innerHTML = '<div style="font-size:32px; margin-bottom:12px;">🎉</div><strong>Скрытых сайтов нет!</strong><br><span style="font-size:14px; color:#64748b;">Все 21 сайт активны и отмечены галочкой ✓.</span>';
+                    }} else {{
+                        emptyMsg.innerHTML = '<div style="font-size:32px; margin-bottom:12px;">🔍</div><strong>Нет сайтов в выбранной категории</strong>';
+                    }}
+                }} else {{
+                    emptyMsg.style.display = 'none';
+                }}
+            }}
+        }}
+
+        function updateAllCounts() {{
+            let totalActive = 0;
+            let totalHidden = 0;
+            let kemActive = 0;
+            let tomActive = 0;
+            const totalAll = cards.length;
+
+            cards.forEach(card => {{
+                const isHidden = card.dataset.status === 'hidden';
+                const city = card.dataset.city;
+                if (isHidden) {{
+                    totalHidden++;
+                }} else {{
+                    totalActive++;
+                    if (city === 'kem') kemActive++;
+                    if (city === 'tom') tomActive++;
+                }}
+            }});
+
+            if (statActive) statActive.textContent = totalActive;
+            if (statHidden) statHidden.textContent = totalHidden;
+            if (statKem) statKem.textContent = kemActive;
+            if (statTom) statTom.textContent = tomActive;
+            if (statHiddenBox) {{
+                statHiddenBox.style.display = totalHidden > 0 ? '' : 'none';
+            }}
+
+            if (tabActiveCnt) tabActiveCnt.textContent = totalActive;
+            if (tabHiddenCnt) tabHiddenCnt.textContent = totalHidden;
+            if (tabKemCnt) tabKemCnt.textContent = kemActive;
+            if (tabTomCnt) tabTomCnt.textContent = tomActive;
+            if (tabAllCnt) tabAllCnt.textContent = totalAll;
+
+            if (fbActiveCnt) fbActiveCnt.textContent = totalActive;
+            if (fbHiddenCnt) fbHiddenCnt.textContent = totalHidden;
+
+            applyFilter(currentFilter);
         }}
 
         tabs.forEach(tab => {{
@@ -1375,7 +1762,85 @@ def build_catalog():
             }});
         }});
 
-        applyFilter('all');
+        fbFilters.forEach(f => {{
+            f.addEventListener('click', () => {{
+                applyFilter(f.dataset.fbFilter);
+            }});
+        }});
+
+        if (btnReset) {{
+            btnReset.addEventListener('click', () => {{
+                if (confirm('Восстановить все галочки по умолчанию (вернуть все сайты в показ)?')) {{
+                    try {{
+                        localStorage.removeItem(STORAGE_KEY);
+                    }} catch (e) {{}}
+                    savedStatuses = {{}};
+
+                    cards.forEach(card => {{
+                        const slug = card.dataset.slug;
+                        const defStatus = defaultStatuses[slug] || 'active';
+                        const isActive = (defStatus === 'active');
+                        const checkbox = card.querySelector('.business-toggle');
+                        if (checkbox) checkbox.checked = isActive;
+                        card.classList.toggle('is-card-hidden', !isActive);
+                        card.dataset.status = defStatus;
+                    }});
+
+                    updateAllCounts();
+                    showToast('🔄 Все сайты возвращены в активный показ (✓)');
+                }}
+            }});
+        }}
+
+        if (btnCopy) {{
+            btnCopy.addEventListener('click', () => {{
+                const hiddenCards = Array.from(cards).filter(c => c.dataset.status === 'hidden');
+                if (hiddenCards.length === 0) {{
+                    showToast('✓ Все сайты активны — скрытых сайтов нет');
+                    return;
+                }}
+                const slugs = hiddenCards.map(c => c.dataset.slug);
+                const textToCopy = slugs.join(', ');
+
+                const copyDone = () => {{
+                    const spanText = btnCopy.querySelector('.btn-text');
+                    const origText = spanText ? spanText.textContent : 'Скопировать скрытые';
+                    if (spanText) spanText.textContent = `✓ Скопировано (${{slugs.length}})!`;
+                    showToast(`📋 Скопировано (${{slugs.length}}): ${{textToCopy}}`);
+                    setTimeout(() => {{
+                        if (spanText) spanText.textContent = origText;
+                    }}, 2200);
+                }};
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {{
+                    navigator.clipboard.writeText(textToCopy).then(copyDone).catch(() => {{
+                        fallbackCopy(textToCopy, copyDone);
+                    }});
+                }} else {{
+                    fallbackCopy(textToCopy, copyDone);
+                }}
+            }});
+        }}
+
+        function fallbackCopy(text, callback) {{
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try {{
+                document.execCommand('copy');
+                if (callback) callback();
+            }} catch (e) {{
+                showToast('Ошибка при копировании в буфер');
+            }}
+            document.body.removeChild(ta);
+        }}
+
+        // Первоначальный расчёт счётчиков и отображение
+        updateAllCounts();
+        applyFilter('active');
     }});
     </script>
 </body>
@@ -1385,6 +1850,7 @@ def build_catalog():
     (ROOT / "sites" / "robots.txt").write_text("User-agent: *\nDisallow: /\n", encoding="utf-8")
     (ROOT / "sites" / "_headers").write_text("/*\n  X-Robots-Tag: noindex, nofollow, noarchive\n", encoding="utf-8")
     print(f"OK catalog sites/index.html (Активных: {total_active}, Скрытых: {total_hidden})")
+
 
 
 def show_status():
