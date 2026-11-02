@@ -14,14 +14,44 @@ VAR = re.compile(r"\{\{(\w+)\}\}")
 THEMES = {
     # КЕМЕРОВО
     "kem-01": {
-        "theme_name": "Revo Racing Orange",
-        "theme_accent": "#ff5500",
-        "theme_accent_dark": "#cc4400",
-        "theme_accent_soft": "rgba(255, 85, 0, 0.12)",
+        "theme_name": "MotorsLab Dark Teal & Orange",
+        "theme_accent": "#ff7a3d",
+        "theme_accent_dark": "#f06a2b",
+        "theme_accent_soft": "rgba(255, 122, 61, 0.14)",
+        "theme_accent_border": "rgba(255, 122, 61, 0.45)",
         "theme_accent_text": "#0f1a24",
-        "theme_hero_ink": "#12100e",
-        "theme_hero_grad": "linear-gradient(rgba(18,16,14,0.85),rgba(18,16,14,0.92))",
-        "theme_bg": "#f6f2ee",
+        "theme_hero_ink": "#0f1a24",
+        "theme_hero_grad": "linear-gradient(rgba(15,26,36,0.85),rgba(15,26,36,0.92))",
+        "theme_bg": "#0f1a24",
+        "theme_ink": "#e2e8f0",
+        "theme_paper": "#162432",
+        "theme_paper_subtle": "#132230",
+        "theme_line": "#24384d",
+        "theme_line_light": "rgba(255, 255, 255, 0.08)",
+        "theme_steel": "#94a3b8",
+        "theme_steel_light": "#64748b",
+        "theme_headings": "#ffffff",
+        "theme_text_body": "#e2e8f0",
+        "theme_text_muted": "#94a3b8",
+        "theme_card_border": "#24384d",
+        "theme_price_color": "#ff7a3d",
+        "theme_service_btn_bg": "#ff7a3d",
+        "theme_service_btn_text": "#0f1a24",
+        "theme_service_btn_hover_bg": "#f06a2b",
+        "theme_service_btn_hover_text": "#0f1a24",
+        "theme_more_btn_bg": "#162432",
+        "theme_more_btn_border": "#ff7a3d",
+        "theme_more_btn_text": "#ff7a3d",
+        "theme_more_btn_arrow": "#ff7a3d",
+        "theme_more_btn_hover_bg": "rgba(255, 122, 61, 0.14)",
+        "theme_more_btn_hover_text": "#ff7a3d",
+        "theme_badge_color": "#ff7a3d",
+        "theme_rating_color": "#ff7a3d",
+        "theme_btn_arrow_color": "#ff7a3d",
+        "theme_btn_secondary_hover_bg": "#162432",
+        "theme_btn_secondary_hover_text": "#ff7a3d",
+        "theme_bar_bg": "#ff7a3d",
+        "theme_bar_text": "#0f1a24",
     },
     "kem-02": {
         "theme_name": "Nordic Steel Teal",
@@ -232,10 +262,40 @@ DEFAULT_THEME = {
     "theme_accent": "#f5a800",
     "theme_accent_dark": "#cc8400",
     "theme_accent_soft": "rgba(245, 168, 0, 0.12)",
+    "theme_accent_border": "#f5a800",
     "theme_accent_text": "#0f1a24",
     "theme_hero_ink": "#0f1a24",
     "theme_hero_grad": "linear-gradient(rgba(15,26,36,0.80),rgba(15,26,36,0.88))",
     "theme_bg": "#edf1f4",
+    "theme_ink": "#0f1a24",
+    "theme_paper": "#ffffff",
+    "theme_paper_subtle": "#f8fafb",
+    "theme_line": "#c8d3dc",
+    "theme_line_light": "#e3e9ef",
+    "theme_steel": "#3c5468",
+    "theme_steel_light": "#5a7388",
+    "theme_headings": "#0f1a24",
+    "theme_text_body": "#1e2c38",
+    "theme_text_muted": "#5a7388",
+    "theme_card_border": "#c8d3dc",
+    "theme_price_color": "#cc8400",
+    "theme_service_btn_bg": "#0f1a24",
+    "theme_service_btn_text": "#ffffff",
+    "theme_service_btn_hover_bg": "#cc8400",
+    "theme_service_btn_hover_text": "#ffffff",
+    "theme_more_btn_bg": "#ffffff",
+    "theme_more_btn_border": "#c8d3dc",
+    "theme_more_btn_text": "#0f1a24",
+    "theme_more_btn_arrow": "#cc8400",
+    "theme_more_btn_hover_bg": "#f8fafb",
+    "theme_more_btn_hover_text": "#cc8400",
+    "theme_badge_color": "#cc8400",
+    "theme_rating_color": "#cc8400",
+    "theme_btn_arrow_color": "#3c5468",
+    "theme_btn_secondary_hover_bg": "#ffffff",
+    "theme_btn_secondary_hover_text": "#cc8400",
+    "theme_bar_bg": "#0f1a24",
+    "theme_bar_text": "#ffffff",
 }
 
 SOCIALS_MAP = {
@@ -510,7 +570,22 @@ def build(slug):
     data["more_count"] = more_count
 
     # Уникальная тема оформления
-    theme = THEMES.get(slug, DEFAULT_THEME)
+    raw_theme = THEMES.get(slug, DEFAULT_THEME)
+    theme = {**DEFAULT_THEME}
+    accent = raw_theme.get("theme_accent", DEFAULT_THEME["theme_accent"])
+    accent_dark = raw_theme.get("theme_accent_dark", DEFAULT_THEME["theme_accent_dark"])
+    hero_ink = raw_theme.get("theme_hero_ink", DEFAULT_THEME["theme_hero_ink"])
+    theme["theme_accent_border"] = accent
+    theme["theme_price_color"] = accent_dark
+    theme["theme_service_btn_bg"] = hero_ink
+    theme["theme_service_btn_hover_bg"] = accent_dark
+    theme["theme_more_btn_arrow"] = accent_dark
+    theme["theme_more_btn_hover_text"] = accent_dark
+    theme["theme_badge_color"] = accent_dark
+    theme["theme_rating_color"] = accent_dark
+    theme["theme_btn_secondary_hover_text"] = accent_dark
+    theme["theme_bar_bg"] = hero_ink
+    theme.update(raw_theme)
     data.update(theme)
 
     # Вспомогательные поля для карты и ссылок на маршрут
@@ -576,7 +651,15 @@ def build(slug):
         shutil.copy(TPL / "style.css", out / "standard.css")
     else:
         (out / "index.html").write_text(rendered_html, encoding="utf-8")
-        shutil.copy(TPL / "style.css", out / "style.css")
+        # Синхронизируем вычисленный :root со style.css сайта
+        m_root = re.search(r"(:root\s*\{[\s\S]*?\})", rendered_html)
+        if m_root:
+            rendered_root = m_root.group(1)
+            base_css = (TPL / "style.css").read_text(encoding="utf-8")
+            out_css = re.sub(r":root\s*\{[\s\S]*?\}", lambda _: rendered_root, base_css, count=1)
+            (out / "style.css").write_text(out_css, encoding="utf-8")
+        else:
+            shutil.copy(TPL / "style.css", out / "style.css")
 
     # запрет индексации: robots.txt + заголовок для Netlify/Cloudflare Pages
     (out / "robots.txt").write_text("User-agent: *\nDisallow: /\n", encoding="utf-8")
