@@ -28,7 +28,7 @@
             color: var(--text);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             line-height: 1.5;
-            padding: 24px 16px;
+            padding: 24px 16px 110px;
         }
         .container {
             max-width: 1200px;
@@ -95,7 +95,7 @@
             color: var(--text-muted);
             font-size: 14px;
             font-weight: 600;
-            padding: 8px 20px;
+            padding: 8px 18px;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.15s ease;
@@ -151,7 +151,8 @@
             padding: 16px;
             display: flex;
             flex-direction: column;
-            transition: transform 0.15s, border-color 0.15s;
+            transition: transform 0.15s, border-color 0.15s, opacity 0.2s, background 0.2s;
+            position: relative;
         }
         .site-card:hover {
             border-color: var(--primary);
@@ -162,10 +163,14 @@
             background: linear-gradient(180deg, #1b212f 0%, #0e1117 100%) !important;
             box-shadow: 0 4px 20px rgba(245, 166, 35, 0.15);
         }
-        .site-card-hidden {
-            border-color: #334155;
+        .site-card.is-card-hidden {
+            border-color: rgba(239, 68, 68, 0.35);
             background: #111827;
-            opacity: 0.94;
+            opacity: 0.65;
+        }
+        .site-card.is-card-hidden:hover {
+            opacity: 0.92;
+            border-color: rgba(239, 68, 68, 0.6);
         }
         .site-card-header {
             display: flex;
@@ -200,6 +205,114 @@
             color: #facc15;
             font-weight: bold;
         }
+
+        /* Интерактивный переключатель статуса на карточке (галочка ✓ / крестик ✗) */
+        .card-toggle-wrap {
+            margin-bottom: 12px;
+        }
+        .toggle-status-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 44px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.2s ease;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1.5px solid rgba(16, 185, 129, 0.45);
+        }
+        .toggle-status-box:hover {
+            filter: brightness(1.12);
+        }
+        .toggle-status-box input.business-toggle {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+        }
+        .toggle-indicator {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 16px;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            background: #10b981;
+            color: #ffffff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+        .toggle-glyph {
+            line-height: 1;
+        }
+        .toggle-glyph-check {
+            display: inline-block;
+        }
+        .toggle-glyph-cross {
+            display: none;
+        }
+        .toggle-label-wrap {
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+        .toggle-state-text.state-active {
+            display: inline-block;
+            color: #34d399;
+        }
+        .toggle-state-text.state-hidden {
+            display: none;
+            color: #f87171;
+        }
+
+        /* Состояние переключателя, когда карточка скрыта */
+        .site-card.is-card-hidden .toggle-status-box {
+            background: rgba(239, 68, 68, 0.14);
+            border-color: rgba(239, 68, 68, 0.55);
+        }
+        .site-card.is-card-hidden .toggle-indicator {
+            background: #ef4444;
+        }
+        .site-card.is-card-hidden .toggle-glyph-check {
+            display: none;
+        }
+        .site-card.is-card-hidden .toggle-glyph-cross {
+            display: inline-block;
+        }
+        .site-card.is-card-hidden .toggle-state-text.state-active {
+            display: none;
+        }
+        .site-card.is-card-hidden .toggle-state-text.state-hidden {
+            display: inline-block;
+        }
+
+        .card-hidden-banner {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px dashed rgba(239, 68, 68, 0.45);
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 12px;
+            color: #fca5a5;
+            margin-bottom: 12px;
+        }
+        .site-card.is-card-hidden .card-hidden-banner {
+            display: flex;
+        }
+        .hidden-banner-icon {
+            font-weight: bold;
+            color: #ef4444;
+        }
+
         .theme-badge {
             display: inline-flex;
             align-items: center;
@@ -234,19 +347,6 @@
             font-family: monospace;
             margin-bottom: 14px;
         }
-        .card-hidden-reason {
-            background: rgba(15, 23, 42, 0.75);
-            border: 1px solid #334155;
-            border-radius: 6px;
-            padding: 8px 10px;
-            font-size: 12.5px;
-            color: #94a3b8;
-            margin-bottom: 14px;
-            line-height: 1.4;
-        }
-        .card-hidden-reason strong {
-            color: #e2e8f0;
-        }
         .site-actions {
             margin-top: auto;
             display: flex;
@@ -270,15 +370,10 @@
         .btn-primary:hover {
             background: var(--primary-hover);
         }
-        .btn-muted {
-            background: #1e293b;
+        .site-card.is-card-hidden .btn-primary {
+            background: #334155;
             color: #cbd5e1;
             border: 1px solid #475569;
-        }
-        .btn-muted:hover {
-            background: #334155;
-            color: #ffffff;
-            border-color: #64748b;
         }
         footer {
             text-align: center;
@@ -287,6 +382,147 @@
             margin-top: 48px;
             padding-top: 24px;
             border-top: 1px solid var(--border);
+        }
+
+        /* Компактный плавающий бар управления внизу страницы */
+        .floating-bar {
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 24px);
+            max-width: 880px;
+            background: rgba(15, 23, 42, 0.94);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.15);
+            border-radius: 14px;
+            padding: 8px 14px;
+            z-index: 9999;
+        }
+        .fb-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .fb-stats {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .fb-stat-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .fb-stat-check {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+        }
+        .fb-stat-cross {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+        }
+        .fb-filters {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .fb-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .fb-btn {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+        .fb-btn:hover {
+            background: var(--surface-hover);
+            border-color: var(--primary);
+        }
+        .fb-filter.active {
+            background: var(--primary);
+            color: #0f172a;
+            border-color: var(--primary);
+            font-weight: 700;
+        }
+        .fb-btn-copy {
+            background: rgba(56, 189, 248, 0.12);
+            color: #38bdf8;
+            border-color: rgba(56, 189, 248, 0.35);
+        }
+        .fb-btn-copy:hover {
+            background: rgba(56, 189, 248, 0.22);
+        }
+
+        /* Toast уведомление */
+        .toast-notification {
+            position: fixed;
+            bottom: 84px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #0f172a;
+            border: 1px solid #38bdf8;
+            color: #f8fafc;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.25s ease;
+            z-index: 10000;
+            max-width: 90vw;
+            text-align: center;
+        }
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-bottom: 130px !important;
+            }
+            .floating-bar {
+                bottom: 8px;
+                padding: 8px 10px;
+            }
+            .fb-content {
+                justify-content: center;
+            }
+            .fb-stats, .fb-filters, .fb-actions {
+                justify-content: center;
+            }
+            .fb-btn {
+                min-height: 42px;
+                padding: 6px 10px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
@@ -300,25 +536,29 @@
             <h1>Чип-тюнинг сервисы: Демо-лендинги</h1>
             <p>Готовые мобильные сайты для автосервисов чип-тюнинга Кемерово и Томска</p>
             <div class="stats-bar">
-                <div class="stat-item">Активных сайтов: <strong>21</strong></div>
-                <div class="stat-item">Кемерово: <strong>15</strong></div>
-                <div class="stat-item">Томск: <strong>6</strong></div>
+                <div class="stat-item">Активных сайтов: <strong id="stat-active-count">21</strong></div>
+                <div class="stat-item">Кемерово: <strong id="stat-kem-count">15</strong></div>
+                <div class="stat-item">Томск: <strong id="stat-tom-count">6</strong></div>
                 <div class="stat-item">Горячих лидов (без сайта): <strong>10</strong></div>
-                
+                <div class="stat-item stat-item-hidden" id="stat-hidden-box" style="display: none;">
+                    Скрыто (с крестиком): <strong class="badge-hidden-count" id="stat-hidden-count">0</strong>
+                </div>
             </div>
         </header>
 
         <div class="tabs-filter">
-            <button type="button" class="tab-btn active" data-filter="all">Все активные (21)</button>
-            <button type="button" class="tab-btn" data-filter="kem">Кемерово (15)</button>
-            <button type="button" class="tab-btn" data-filter="tom">Томск (6)</button>
+            <button type="button" class="tab-btn active" data-filter="active">Все активные (✓ <span id="tab-active-cnt">21</span>)</button>
+            <button type="button" class="tab-btn" data-filter="kem">Кемерово (<span id="tab-kem-cnt">15</span>)</button>
+            <button type="button" class="tab-btn" data-filter="tom">Томск (<span id="tab-tom-cnt">6</span>)</button>
+            <button type="button" class="tab-btn tab-btn-hidden" data-filter="hidden">Скрытые (✗ <span id="tab-hidden-cnt">0</span>)</button>
+            <button type="button" class="tab-btn" data-filter="all">Все (<span id="tab-all-cnt">21</span>)</button>
         </div>
 
         <section class="city-section" id="section-kem">
             <h2 class="city-title">г. Кемерово <span class="city-count" id="count-kem">(15 объектов)</span></h2>
             <div class="grid">
                 
-        <div class="site-card" data-city="kem" data-status="active">
+        <div class="site-card" data-slug="kem-01" data-city="kem" data-status="active" data-name="MotorsLab">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-red">Нет сайта</span>
@@ -326,6 +566,27 @@
                 </div>
                 <div class="rating">4.9★ (43)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="kem-01" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #ef44441a; color: #ef4444; border: 1px solid #ef444444;">
                 <span class="theme-dot" style="background: #ef4444;"></span> MotorsLab Dark Teal &amp; Crimson Red
             </div>
@@ -333,10 +594,10 @@
             <p class="site-address">ул. Дзержинского, 14</p>
             <p class="site-phone">+79069839530</p>
             <div class="site-actions">
-                <a href="kem-01/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="kem-01/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="kem" data-status="active">
+        <div class="site-card" data-slug="kem-02" data-city="kem" data-status="active" data-name="The Car Service">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-green">есть сайт</span>
@@ -344,6 +605,27 @@
                 </div>
                 <div class="rating">5.0★ (121)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="kem-02" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #0891b21a; color: #0891b2; border: 1px solid #0891b244;">
                 <span class="theme-dot" style="background: #0891b2;"></span> Nordic Steel Teal
             </div>
@@ -351,10 +633,10 @@
             <p class="site-address">ул. Базовая, 6а/2</p>
             <p class="site-phone">+79955132353</p>
             <div class="site-actions">
-                <a href="kem-02/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="kem-02/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="kem" data-status="active">
+        <div class="site-card" data-slug="kem-03" data-city="kem" data-status="active" data-name="Сафари">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-yellow">не работает</span>
@@ -362,6 +644,27 @@
                 </div>
                 <div class="rating">4.4★ (82)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="kem-03" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #d977061a; color: #d97706; border: 1px solid #d9770644;">
                 <span class="theme-dot" style="background: #d97706;"></span> Safari Bronze Ochre
             </div>
@@ -369,10 +672,10 @@
             <p class="site-address">ул. Карболитовская, 20</p>
             <p class="site-phone">+73842348515</p>
             <div class="site-actions">
-                <a href="kem-03/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="kem-03/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="kem" data-status="active">
+        <div class="site-card" data-slug="kem-04" data-city="kem" data-status="active" data-name="PANDORA">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-green">есть сайт</span>
@@ -380,6 +683,27 @@
                 </div>
                 <div class="rating">5.0★ (66)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="kem-04" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #e11d481a; color: #e11d48; border: 1px solid #e11d4844;">
                 <span class="theme-dot" style="background: #e11d48;"></span> Pandora Ruby Tech
             </div>
@@ -387,10 +711,10 @@
             <p class="site-address">ул. Волгоградская, 51а, бокс 3</p>
             <p class="site-phone">+7 (3842) 24-04-03, +7-961-866-04-03</p>
             <div class="site-actions">
-                <a href="kem-04/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="kem-04/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="kem" data-status="active">
+        <div class="site-card" data-slug="kem-05" data-city="kem" data-status="active" data-name="Корона">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-red">Нет сайта</span>
@@ -398,6 +722,27 @@
                 </div>
                 <div class="rating">4.8★ (126)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="kem-05" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #2563eb1a; color: #2563eb; border: 1px solid #2563eb44;">
                 <span class="theme-dot" style="background: #2563eb;"></span> Royal Blue Tech
             </div>
@@ -405,10 +750,10 @@
             <p class="site-address">ул. Радищева, 2/2 к1, 1 этаж</p>
             <p class="site-phone">+7‒923‒533‒16‒64, +7 (3842) 65‒55‒99, +7‒904‒371‒94‒47</p>
             <div class="site-actions">
-                <a href="kem-05/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="kem-05/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="kem" data-status="active">
+        <div class="site-card" data-slug="kem-06" data-city="kem" data-status="active" data-name="А Спектр Плюс">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-yellow">микросайт 2gis.biz</span>
@@ -416,6 +761,27 @@
                 </div>
                 <div class="rating">4.6★ (95)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="kem-06" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #ea580c1a; color: #ea580c; border: 1px solid #ea580c44;">
                 <span class="theme-dot" style="background: #ea580c;"></span> Exhaust Ember
             </div>
@@ -423,10 +789,10 @@
             <p class="site-address">ул. Радищева, 2/2 к2, 1 этаж</p>
             <p class="site-phone">+7 (3842) 76-28-50, +7-900-052-84-62</p>
             <div class="site-actions">
-                <a href="kem-06/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="kem-06/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="kem" data-status="active">
+        <div class="site-card" data-slug="kem-07" data-city="kem" data-status="active" data-name="Ast">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-red">Нет сайта</span>
@@ -434,6 +800,27 @@
                 </div>
                 <div class="rating">4.7★ (85)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="kem-07" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #f59e0b1a; color: #f59e0b; border: 1px solid #f59e0b44;">
                 <span class="theme-dot" style="background: #f59e0b;"></span> Ast Amber Gold
             </div>
@@ -441,10 +828,10 @@
             <p class="site-address">ул. Автозаводская, 12Б к2, 1 этаж</p>
             <p class="site-phone">+7-995-164-04-09</p>
             <div class="site-actions">
-                <a href="kem-07/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="kem-07/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="kem" data-status="active">
+        <div class="site-card" data-slug="kem-08" data-city="kem" data-status="active" data-name="Clubservice">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-yellow">не работает</span>
@@ -452,6 +839,27 @@
                 </div>
                 <div class="rating">4.9★ (85)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="kem-08" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #0284c71a; color: #0284c7; border: 1px solid #0284c744;">
                 <span class="theme-dot" style="background: #0284c7;"></span> Club Navy Cyan
             </div>
@@ -459,10 +867,10 @@
             <p class="site-address">ул. Мирная, 3/1</p>
             <p class="site-phone">+7-905-919-11-99</p>
             <div class="site-actions">
-                <a href="kem-08/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="kem-08/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="kem" data-status="active">
+        <div class="site-card" data-slug="kem-09" data-city="kem" data-status="active" data-name="Wrap Force">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-green">есть сайт</span>
@@ -470,6 +878,27 @@
                 </div>
                 <div class="rating">5.0★ (61)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="kem-09" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #84cc161a; color: #84cc16; border: 1px solid #84cc1644;">
                 <span class="theme-dot" style="background: #84cc16;"></span> Wrap Neon Lime
             </div>
@@ -477,10 +906,10 @@
             <p class="site-address">ул. Терешковой, 41/3, аллея В</p>
             <p class="site-phone">+79511660299, +79059075577</p>
             <div class="site-actions">
-                <a href="kem-09/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="kem-09/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="kem" data-status="active">
+        <div class="site-card" data-slug="kem-10" data-city="kem" data-status="active" data-name="Tun №1">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-yellow">только taplink</span>
@@ -488,6 +917,27 @@
                 </div>
                 <div class="rating">5.0★ (43)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="kem-10" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #ff9f1a1a; color: #ff9f1a; border: 1px solid #ff9f1a44;">
                 <span class="theme-dot" style="background: #ff9f1a;"></span> Tun №1 Stealth Obsidian &amp; Amber Gold
             </div>
@@ -495,10 +945,10 @@
             <p class="site-address">Суховская улица, 1в, пос. Металлплощадка</p>
             <p class="site-phone">+79236134299, +79951625837</p>
             <div class="site-actions">
-                <a href="kem-10/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="kem-10/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="kem" data-status="active">
+        <div class="site-card" data-slug="kem-12" data-city="kem" data-status="active" data-name="Dmd">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-red">Нет сайта</span>
@@ -506,6 +956,27 @@
                 </div>
                 <div class="rating">5.0★ (146)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="kem-12" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #0d94881a; color: #0d9488; border: 1px solid #0d948844;">
                 <span class="theme-dot" style="background: #0d9488;"></span> Mint Teal Detailing
             </div>
@@ -513,10 +984,10 @@
             <p class="site-address">д. Сухово, ул. Лунная, 2</p>
             <p class="site-phone">+7-902-984-33-22</p>
             <div class="site-actions">
-                <a href="kem-12/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="kem-12/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="kem" data-status="active">
+        <div class="site-card" data-slug="kem-13" data-city="kem" data-status="active" data-name="Автодом">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-red">Нет сайта</span>
@@ -524,6 +995,27 @@
                 </div>
                 <div class="rating">4.7★ (79)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="kem-13" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #4755691a; color: #475569; border: 1px solid #47556944;">
                 <span class="theme-dot" style="background: #475569;"></span> Gunmetal Graphite
             </div>
@@ -531,10 +1023,10 @@
             <p class="site-address">ул. Железнодорожная, 242</p>
             <p class="site-phone">+7-923-567-00-93, +7-903-907-23-46</p>
             <div class="site-actions">
-                <a href="kem-13/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="kem-13/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="kem" data-status="active">
+        <div class="site-card" data-slug="kem-14" data-city="kem" data-status="active" data-name="Aspeed">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-red">Нет сайта</span>
@@ -542,6 +1034,27 @@
                 </div>
                 <div class="rating">4.9★ (25)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="kem-14" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #eab3081a; color: #eab308; border: 1px solid #eab30844;">
                 <span class="theme-dot" style="background: #eab308;"></span> Aspeed Racing Yellow
             </div>
@@ -549,10 +1062,10 @@
             <p class="site-address">ул. Маяковского, 13 к1, 1 этаж</p>
             <p class="site-phone">+7-904-965-77-97</p>
             <div class="site-actions">
-                <a href="kem-14/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="kem-14/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="kem" data-status="active">
+        <div class="site-card" data-slug="kem-15" data-city="kem" data-status="active" data-name="Про Центр">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-green">есть сайт</span>
@@ -560,6 +1073,27 @@
                 </div>
                 <div class="rating">4.9★ (51)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="kem-15" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #1d4ed81a; color: #1d4ed8; border: 1px solid #1d4ed844;">
                 <span class="theme-dot" style="background: #1d4ed8;"></span> BMW M Motorsport Blue
             </div>
@@ -567,10 +1101,10 @@
             <p class="site-address">Советский проспект, 1а/1, 1 этаж</p>
             <p class="site-phone">+7 (3842) 44-66-64, +7-962-734-66-64</p>
             <div class="site-actions">
-                <a href="kem-15/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="kem-15/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="kem" data-status="active">
+        <div class="site-card" data-slug="kem-16" data-city="kem" data-status="active" data-name="Поворот">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-red">Нет сайта</span>
@@ -578,6 +1112,27 @@
                 </div>
                 <div class="rating">5.0★ (44)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="kem-16" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #52525b1a; color: #52525b; border: 1px solid #52525b44;">
                 <span class="theme-dot" style="background: #52525b;"></span> Industrial Slate
             </div>
@@ -585,7 +1140,7 @@
             <p class="site-address">ул. Узкоколейная, 1/1, 1 этаж</p>
             <p class="site-phone">+7-903-984-18-58, +7-951-594-86-75, +7-923-518-22-77</p>
             <div class="site-actions">
-                <a href="kem-16/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="kem-16/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
             </div>
@@ -595,15 +1150,35 @@
             <h2 class="city-title">г. Томск <span class="city-count" id="count-tom">(6 объектов)</span></h2>
             <div class="grid">
                 
-        <div class="site-card featured-site-card" data-city="tom" data-status="active">
-            <span class="badge" style="background:#f5a623;color:#000;font-weight:800;margin-bottom:8px;display:inline-block;">★ ТОП-ЛИДЕР (5.0★ • 367 отзывов)</span>
-            <div class="site-card-header">
+        <div class="site-card featured-site-card" data-slug="tom-01" data-city="tom" data-status="active" data-name="Автокат-Делит">
+            <span class="badge" style="background:#f5a623;color:#000;font-weight:800;margin-bottom:8px;display:inline-block;">★ ТОП-ЛИДЕР (5.0★ • 367 отзывов)</span> <div class="site-card-header">
                 <div>
                     <span class="badge badge-red">Нет сайта</span>
                     <span class="slug-tag">tom-01</span>
                 </div>
                 <div class="rating">5.0★ (367)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="tom-01" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #f5a8001a; color: #f5a800; border: 1px solid #f5a80044;">
                 <span class="theme-dot" style="background: #f5a800;"></span> Obsidian &amp; Amber HUD
             </div>
@@ -611,10 +1186,10 @@
             <p class="site-address">проспект Мира, 41/2</p>
             <p class="site-phone">+79138151819</p>
             <div class="site-actions">
-                <a href="tom-01/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="tom-01/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="tom" data-status="active">
+        <div class="site-card" data-slug="tom-02" data-city="tom" data-status="active" data-name="SibTune">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-green">есть сайт</span>
@@ -622,6 +1197,27 @@
                 </div>
                 <div class="rating">4.9★ (63)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="tom-02" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #dc26261a; color: #dc2626; border: 1px solid #dc262644;">
                 <span class="theme-dot" style="background: #dc2626;"></span> Siberian Racing Red
             </div>
@@ -629,10 +1225,10 @@
             <p class="site-address">переулок Добролюбова, 10 ст5</p>
             <p class="site-phone">+79627774000</p>
             <div class="site-actions">
-                <a href="tom-02/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="tom-02/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="tom" data-status="active">
+        <div class="site-card" data-slug="tom-03" data-city="tom" data-status="active" data-name="RIDe s.s. Honda/Acura service">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-yellow">не работает</span>
@@ -640,6 +1236,27 @@
                 </div>
                 <div class="rating">4.6★ (62)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="tom-03" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #0284c71a; color: #0284c7; border: 1px solid #0284c744;">
                 <span class="theme-dot" style="background: #0284c7;"></span> Honda Azure Sport
             </div>
@@ -647,10 +1264,10 @@
             <p class="site-address">улица Герцена, 72/1 ст1</p>
             <p class="site-phone">+7 (3822) 20-02-01, +7-913-841-06-89</p>
             <div class="site-actions">
-                <a href="tom-03/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="tom-03/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="tom" data-status="active">
+        <div class="site-card" data-slug="tom-04" data-city="tom" data-status="active" data-name="Адамант">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-yellow">микросайт 2gis.biz</span>
@@ -658,6 +1275,27 @@
                 </div>
                 <div class="rating">4.9★ (36)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="tom-04" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #16a34a1a; color: #16a34a; border: 1px solid #16a34a44;">
                 <span class="theme-dot" style="background: #16a34a;"></span> Adamant Forest Emerald
             </div>
@@ -665,10 +1303,10 @@
             <p class="site-address">Усть-Керепеть, 123</p>
             <p class="site-phone">+7 (3822) 20-04-11, +7-953-913-04-11, +7 (3822) 94-29-17</p>
             <div class="site-actions">
-                <a href="tom-04/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="tom-04/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="tom" data-status="active">
+        <div class="site-card" data-slug="tom-05" data-city="tom" data-status="active" data-name="СТО-ОТС">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-red">Нет сайта</span>
@@ -676,6 +1314,27 @@
                 </div>
                 <div class="rating">5.0★ (78)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="tom-05" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #4f46e51a; color: #4f46e5; border: 1px solid #4f46e544;">
                 <span class="theme-dot" style="background: #4f46e5;"></span> Deep Indigo Tech
             </div>
@@ -683,10 +1342,10 @@
             <p class="site-address">улица Мокрушина, 9/2</p>
             <p class="site-phone">+7 (3822) 200-655, +7-952-679-41-33</p>
             <div class="site-actions">
-                <a href="tom-05/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="tom-05/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
-        <div class="site-card" data-city="tom" data-status="active">
+        <div class="site-card" data-slug="tom-06" data-city="tom" data-status="active" data-name="AutoBox Tomsk">
             <div class="site-card-header">
                 <div>
                     <span class="badge badge-red">Нет сайта</span>
@@ -694,6 +1353,27 @@
                 </div>
                 <div class="rating">5.0★ (32)</div>
             </div>
+
+            <!-- Интерактивный блок переключателя (галочка ✓ / крестик ✗) -->
+            <div class="card-toggle-wrap">
+                <label class="toggle-status-box" title="Нажмите, чтобы включить (✓) или скрыть (✗) этот бизнес в каталоге">
+                    <input type="checkbox" class="business-toggle" data-slug="tom-06" checked>
+                    <span class="toggle-indicator">
+                        <span class="toggle-glyph toggle-glyph-check">✓</span>
+                        <span class="toggle-glyph toggle-glyph-cross">✗</span>
+                    </span>
+                    <span class="toggle-label-wrap">
+                        <span class="toggle-state-text state-active">✓ Сайт активен (показывается)</span>
+                        <span class="toggle-state-text state-hidden">✗ Сайт скрыт (отключён)</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="card-hidden-banner">
+                <span class="hidden-banner-icon">✗</span>
+                <span class="hidden-banner-text">Сайт скрыт (нажмите галочку выше, чтобы вернуть)</span>
+            </div>
+
             <div class="theme-badge" style="background: #f973161a; color: #f97316; border: 1px solid #f9731644;">
                 <span class="theme-dot" style="background: #f97316;"></span> AutoBox Lava Tangerine
             </div>
@@ -701,7 +1381,7 @@
             <p class="site-address">улица Ивановского, 7/3 ст2</p>
             <p class="site-phone">+7-952-897-77-45, +7-983-235-78-70</p>
             <div class="site-actions">
-                <a href="tom-06/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+                <a href="tom-06/index.html" class="btn btn-primary btn-open-site" target="_blank">Открыть премиум-сайт →</a>
             </div>
         </div>
             </div>
@@ -712,8 +1392,47 @@
         </footer>
     </div>
 
+    <!-- Плавающая панель управления со счётчиками и кнопками -->
+    <div class="floating-bar" id="floating-bar">
+        <div class="fb-content">
+            <div class="fb-stats">
+                <span class="fb-stat-pill fb-stat-check" title="Активных бизнесов с галочкой">
+                    <span class="fb-badge-icon">✓</span> <span id="fb-active-cnt">21</span>
+                </span>
+                <span class="fb-stat-pill fb-stat-cross" title="Скрытых бизнесов с крестиком">
+                    <span class="fb-badge-icon">✗</span> <span id="fb-hidden-cnt">0</span>
+                </span>
+            </div>
+            <div class="fb-filters">
+                <button type="button" class="fb-btn fb-filter active" data-fb-filter="active">✓ Активные</button>
+                <button type="button" class="fb-btn fb-filter" data-fb-filter="all">Все</button>
+                <button type="button" class="fb-btn fb-filter" data-fb-filter="hidden">✗ Скрытые</button>
+            </div>
+            <div class="fb-actions">
+                <button type="button" class="fb-btn fb-action" id="fb-reset-btn" title="Восстановить все галочки по умолчанию">
+                    <span class="btn-icon">🔄</span> <span class="btn-text">Сбросить</span>
+                </button>
+                <button type="button" class="fb-btn fb-action fb-btn-copy" id="fb-copy-btn" title="Скопировать список скрытых бизнесов в буфер обмена">
+                    <span class="btn-icon">📋</span> <span class="btn-text">Скопировать скрытые</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="toast-notification" id="toast-notification"></div>
+
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const STORAGE_KEY = 'chip_tuning_sites_status';
+        const defaultStatuses = {"kem-01": "active", "kem-02": "active", "kem-03": "active", "kem-04": "active", "kem-05": "active", "kem-06": "active", "kem-07": "active", "kem-08": "active", "kem-09": "active", "kem-10": "active", "kem-12": "active", "kem-13": "active", "kem-14": "active", "kem-15": "active", "kem-16": "active", "tom-01": "active", "tom-02": "active", "tom-03": "active", "tom-04": "active", "tom-05": "active", "tom-06": "active"};
+        
+        let savedStatuses = {};
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) savedStatuses = JSON.parse(raw);
+        } catch (e) {
+            console.error('Failed to parse localStorage', e);
+        }
+
         const tabs = document.querySelectorAll('.tab-btn');
         const cards = document.querySelectorAll('.site-card');
         const secKem = document.getElementById('section-kem');
@@ -721,8 +1440,88 @@
         const countKem = document.getElementById('count-kem');
         const countTom = document.getElementById('count-tom');
 
+        const statActive = document.getElementById('stat-active-count');
+        const statHidden = document.getElementById('stat-hidden-count');
+        const statKem = document.getElementById('stat-kem-count');
+        const statTom = document.getElementById('stat-tom-count');
+        const statHiddenBox = document.getElementById('stat-hidden-box');
+
+        const tabActiveCnt = document.getElementById('tab-active-cnt');
+        const tabKemCnt = document.getElementById('tab-kem-cnt');
+        const tabTomCnt = document.getElementById('tab-tom-cnt');
+        const tabHiddenCnt = document.getElementById('tab-hidden-cnt');
+        const tabAllCnt = document.getElementById('tab-all-cnt');
+
+        const fbActiveCnt = document.getElementById('fb-active-cnt');
+        const fbHiddenCnt = document.getElementById('fb-hidden-cnt');
+        const fbFilters = document.querySelectorAll('.fb-filter');
+        const btnReset = document.getElementById('fb-reset-btn');
+        const btnCopy = document.getElementById('fb-copy-btn');
+        const toast = document.getElementById('toast-notification');
+
+        let toastTimer = null;
+        function showToast(message) {
+            if (!toast) return;
+            toast.textContent = message;
+            toast.classList.add('show');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2600);
+        }
+
+        // Инициализация карточек из сохранённого состояния или значений по умолчанию
+        cards.forEach(card => {
+            const slug = card.dataset.slug;
+            const saved = savedStatuses[slug];
+            let isActive = true;
+            if (saved !== undefined) {
+                isActive = (saved === 'active' || saved === true);
+            } else if (defaultStatuses[slug] !== undefined) {
+                isActive = (defaultStatuses[slug] === 'active');
+            }
+
+            const checkbox = card.querySelector('.business-toggle');
+            if (checkbox) {
+                checkbox.checked = isActive;
+            }
+            card.classList.toggle('is-card-hidden', !isActive);
+            card.dataset.status = isActive ? 'active' : 'hidden';
+
+            if (checkbox) {
+                checkbox.addEventListener('change', (e) => {
+                    const isChecked = e.target.checked;
+                    const businessName = card.dataset.name || slug;
+
+                    // Сохраняем в localStorage
+                    savedStatuses[slug] = isChecked ? 'active' : 'hidden';
+                    try {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedStatuses));
+                    } catch (err) {
+                        console.error('LocalStorage error', err);
+                    }
+
+                    card.classList.toggle('is-card-hidden', !isChecked);
+                    card.dataset.status = isChecked ? 'active' : 'hidden';
+
+                    updateAllCounts();
+
+                    if (isChecked) {
+                        showToast(`✓ «${businessName}» включён в показ`);
+                    } else {
+                        showToast(`✗ «${businessName}» скрыт из каталога`);
+                    }
+                });
+            }
+        });
+
+        let currentFilter = 'active';
+
         function applyFilter(filter) {
+            currentFilter = filter;
+
             tabs.forEach(t => t.classList.toggle('active', t.dataset.filter === filter));
+            fbFilters.forEach(f => f.classList.toggle('active', f.dataset.fbFilter === filter));
 
             let visibleKem = 0;
             let visibleTom = 0;
@@ -732,7 +1531,7 @@
                 const city = card.dataset.city;
                 let show = false;
 
-                if (filter === 'all') {
+                if (filter === 'active') {
                     show = !isHidden;
                 } else if (filter === 'kem') {
                     show = !isHidden && (city === 'kem');
@@ -740,6 +1539,8 @@
                     show = !isHidden && (city === 'tom');
                 } else if (filter === 'hidden') {
                     show = isHidden;
+                } else if (filter === 'all') {
+                    show = true;
                 }
 
                 card.style.display = show ? '' : 'none';
@@ -757,6 +1558,66 @@
                 secTom.style.display = visibleTom > 0 ? '' : 'none';
                 if (countTom) countTom.textContent = '(' + visibleTom + ' объектов)';
             }
+
+            let emptyMsg = document.getElementById('catalog-empty-msg');
+            if (!emptyMsg && secTom && secTom.parentNode) {
+                emptyMsg = document.createElement('div');
+                emptyMsg.id = 'catalog-empty-msg';
+                emptyMsg.style.cssText = 'text-align:center; padding:48px 16px; color:#94a3b8; font-size:16px; background:rgba(30,41,59,0.5); border-radius:12px; margin:24px 0; border:1px dashed #334155;';
+                secTom.parentNode.insertBefore(emptyMsg, secTom.nextSibling);
+            }
+
+            if (emptyMsg) {
+                if (visibleKem === 0 && visibleTom === 0) {
+                    emptyMsg.style.display = '';
+                    if (filter === 'hidden') {
+                        emptyMsg.innerHTML = '<div style="font-size:32px; margin-bottom:12px;">🎉</div><strong>Скрытых сайтов нет!</strong><br><span style="font-size:14px; color:#64748b;">Все 21 сайт активны и отмечены галочкой ✓.</span>';
+                    } else {
+                        emptyMsg.innerHTML = '<div style="font-size:32px; margin-bottom:12px;">🔍</div><strong>Нет сайтов в выбранной категории</strong>';
+                    }
+                } else {
+                    emptyMsg.style.display = 'none';
+                }
+            }
+        }
+
+        function updateAllCounts() {
+            let totalActive = 0;
+            let totalHidden = 0;
+            let kemActive = 0;
+            let tomActive = 0;
+            const totalAll = cards.length;
+
+            cards.forEach(card => {
+                const isHidden = card.dataset.status === 'hidden';
+                const city = card.dataset.city;
+                if (isHidden) {
+                    totalHidden++;
+                } else {
+                    totalActive++;
+                    if (city === 'kem') kemActive++;
+                    if (city === 'tom') tomActive++;
+                }
+            });
+
+            if (statActive) statActive.textContent = totalActive;
+            if (statHidden) statHidden.textContent = totalHidden;
+            if (statKem) statKem.textContent = kemActive;
+            if (statTom) statTom.textContent = tomActive;
+            if (statHiddenBox) {
+                statHiddenBox.style.display = totalHidden > 0 ? '' : 'none';
+            }
+
+            if (tabActiveCnt) tabActiveCnt.textContent = totalActive;
+            if (tabHiddenCnt) tabHiddenCnt.textContent = totalHidden;
+            if (tabKemCnt) tabKemCnt.textContent = kemActive;
+            if (tabTomCnt) tabTomCnt.textContent = tomActive;
+            if (tabAllCnt) tabAllCnt.textContent = totalAll;
+
+            if (fbActiveCnt) fbActiveCnt.textContent = totalActive;
+            if (fbHiddenCnt) fbHiddenCnt.textContent = totalHidden;
+
+            applyFilter(currentFilter);
         }
 
         tabs.forEach(tab => {
@@ -765,7 +1626,85 @@
             });
         });
 
-        applyFilter('all');
+        fbFilters.forEach(f => {
+            f.addEventListener('click', () => {
+                applyFilter(f.dataset.fbFilter);
+            });
+        });
+
+        if (btnReset) {
+            btnReset.addEventListener('click', () => {
+                if (confirm('Восстановить все галочки по умолчанию (вернуть все сайты в показ)?')) {
+                    try {
+                        localStorage.removeItem(STORAGE_KEY);
+                    } catch (e) {}
+                    savedStatuses = {};
+
+                    cards.forEach(card => {
+                        const slug = card.dataset.slug;
+                        const defStatus = defaultStatuses[slug] || 'active';
+                        const isActive = (defStatus === 'active');
+                        const checkbox = card.querySelector('.business-toggle');
+                        if (checkbox) checkbox.checked = isActive;
+                        card.classList.toggle('is-card-hidden', !isActive);
+                        card.dataset.status = defStatus;
+                    });
+
+                    updateAllCounts();
+                    showToast('🔄 Все сайты возвращены в активный показ (✓)');
+                }
+            });
+        }
+
+        if (btnCopy) {
+            btnCopy.addEventListener('click', () => {
+                const hiddenCards = Array.from(cards).filter(c => c.dataset.status === 'hidden');
+                if (hiddenCards.length === 0) {
+                    showToast('✓ Все сайты активны — скрытых сайтов нет');
+                    return;
+                }
+                const slugs = hiddenCards.map(c => c.dataset.slug);
+                const textToCopy = slugs.join(', ');
+
+                const copyDone = () => {
+                    const spanText = btnCopy.querySelector('.btn-text');
+                    const origText = spanText ? spanText.textContent : 'Скопировать скрытые';
+                    if (spanText) spanText.textContent = `✓ Скопировано (${slugs.length})!`;
+                    showToast(`📋 Скопировано (${slugs.length}): ${textToCopy}`);
+                    setTimeout(() => {
+                        if (spanText) spanText.textContent = origText;
+                    }, 2200);
+                };
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(textToCopy).then(copyDone).catch(() => {
+                        fallbackCopy(textToCopy, copyDone);
+                    });
+                } else {
+                    fallbackCopy(textToCopy, copyDone);
+                }
+            });
+        }
+
+        function fallbackCopy(text, callback) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                if (callback) callback();
+            } catch (e) {
+                showToast('Ошибка при копировании в буфер');
+            }
+            document.body.removeChild(ta);
+        }
+
+        // Первоначальный расчёт счётчиков и отображение
+        updateAllCounts();
+        applyFilter('active');
     });
     </script>
 </body>
