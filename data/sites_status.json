@@ -1,0 +1,65 @@
+{
+  "kem-01": {
+    "status": "active"
+  },
+  "kem-02": {
+    "status": "active"
+  },
+  "kem-03": {
+    "status": "active"
+  },
+  "kem-04": {
+    "status": "active"
+  },
+  "kem-05": {
+    "status": "active"
+  },
+  "kem-06": {
+    "status": "active"
+  },
+  "kem-07": {
+    "status": "active"
+  },
+  "kem-08": {
+    "status": "active"
+  },
+  "kem-09": {
+    "status": "active"
+  },
+  "kem-10": {
+    "status": "active"
+  },
+  "kem-12": {
+    "status": "active"
+  },
+  "kem-13": {
+    "status": "active"
+  },
+  "kem-14": {
+    "status": "active"
+  },
+  "kem-15": {
+    "status": "active"
+  },
+  "kem-16": {
+    "status": "active"
+  },
+  "tom-01": {
+    "status": "active"
+  },
+  "tom-02": {
+    "status": "active"
+  },
+  "tom-03": {
+    "status": "active"
+  },
+  "tom-04": {
+    "status": "active"
+  },
+  "tom-05": {
+    "status": "active"
+  },
+  "tom-06": {
+    "status": "active"
+  }
+}

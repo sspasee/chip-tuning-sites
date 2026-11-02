@@ -1,6 +1,6 @@
 # ПЛАН ПРОЕКТА: Чип-тюнинг лендинги (Кемерово / Томск)
 
-> Последнее обновление: 2026-11-02 (шаг: kem-10 Tun №1 внесены актуальные цены на 5 услуг от владельца — AdBlue 10 000 ₽, Чип 4 000 ₽, Катализатор 5 000 ₽, Выхлоп 10 000 ₽, SRS/Airbag 3 500 ₽, валидация chip-validator OK; деплой на GitHub Pages)
+> Последнее обновление: 2026-11-02 (шаг: реализована функция скрытия и восстановления сайтов по обращению сервисов: data/sites_status.json, шаблон template/deactivated.html, CLI-команды --hide/--show/--status/--deploy в build.py, интерактивные табы в sites/index.html, деплой на GitHub Pages)
 > Координатор: Antigravity (Gemini 3.8 Flash)
 
 ---
@@ -162,6 +162,7 @@ KEM-02, KEM-04, KEM-09, KEM-15, TOM-02, TOM-03
 - [x] Запуск локального демо-сервера на порту 8080 (http://localhost:8080/) для интерактивной демонстрации и навигации по всем 21 сайтам
 - [x] Финальная комплексная валидация субагентом chip-validator (Шаг 0, Этапы A, B, C, D) — 21 из 21 OK, 0 с правками, 0 блокеров (reports/final-validation-audit.md)
 - [x] Финальная загрузка сайтов на GitHub Pages (репозиторий https://github.com/sspasee/chip-tuning-sites, ветка gh-pages, боевой URL https://sspasee.github.io/chip-tuning-sites/ с noindex/nofollow) и подстановка боевых URL во все 21 файл outreach/*.md
+- [x] Реализована функция скрытия и восстановления сайтов по обращению сервисов: `data/sites_status.json`, шаблон `template/deactivated.html` (Правило 3, noindex, приватность), CLI-команды `--hide`, `--show`, `--status`, `--deploy` в `template/build.py`, интерактивные табы-фильтры в каталоге `sites/index.html`
 
 ---
 
@@ -224,3 +225,4 @@ KEM-02, KEM-04, KEM-09, KEM-15, TOM-02, TOM-03
 | 2026-11-02 | По запросу пользователя оформление сайта Tun №1 (kem-10) переделано строго по фото-референсу (номерная эмблема на радиаторе вишнёвого авто): внедрена темная автомобильная тема Stealth Obsidian & Amber Gold (#0a0b0e, #12141a, акцент #ff9f1a с черным текстом #0a0b0e), в H1 встроена фирменная плашка .brand-plate с белыми «TU», янтарно-золотой «N» и «º1», фоном Hero установлено фото 07.jpg (авто Chery Tiggo 8 в боксе Tun №1 с этой эмблемой). chip-validator подтвердил Шаг 0, Этапы B, C, D (21.0:1 контраст, 0px overflow, reports/validation-kem-10-photo-theme.md). Изменения задеплоены на GitHub Pages. |
 | 2026-11-02 | По запросу пользователя на сайте SibTune (tom-02) удалены две услуги («Тюнинг выхлопной системы» и «Тюнинг двигателя»): обновлены data/raw/tom-02.csv (18/18 полей), content/tom-02.json (14 услуг, обновлён about), outreach/tom-02.md. Сайт пересобран (кнопка «Ещё услуги (11)»), chip-validator подтвердил Шаг 0, Этап B, Этап C (reports/validation-tom-02-services-update.md). Изменения опубликованы на GitHub Pages. |
 | 2026-11-02 | По запросу пользователя для Tun №1 (kem-10) внесены актуальные цены на 5 услуг от владельца: Отключение мочевины (AdBlue) от 10 000 ₽, Чип-тюнинг от 4 000 ₽, Замена катализатора от 5 000 ₽, Тюнинг выхлопной системы от 10 000 ₽, Замена блоков SRS, Airbag от 3 500 ₽. Обновлены data/raw/kem-10.csv (18/18 полей), content/kem-10.json, outreach/kem-10.md, сайт пересобран (3 открыто + 2 под кнопкой «Ещё услуги (2) ↓»). chip-validator подтвердил Шаг 0, Этапы B и C (reports/validation-kem-10-prices.md). Изменения задеплоены на GitHub Pages. |
+| 2026-11-02 | Реализована функция скрытия и восстановления сайтов по обращению сервисов: создан data/sites_status.json (21 активный слаг по умолчанию), шаблон template/deactivated.html (Правило 3, noindex, удаление фото/контактов), CLI-команды в template/build.py (--hide, --show, --status, --deploy), интерактивные табы-фильтры в каталоге sites/index.html. Функция полностью протестирована, деплой на GitHub Pages выполнен. |

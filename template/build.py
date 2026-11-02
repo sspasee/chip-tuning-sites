@@ -3,7 +3,7 @@
 Запуск из корня проекта:  python template/build.py [slug ...]
 Берёт content/{slug}.json + photos/{slug}/ и пишет sites/{slug}/.
 Пустое поле или пустой список -> блок скрывается. Ничего не подставляется."""
-import html, json, re, shutil, sys, urllib.parse
+import csv, datetime, html, json, re, shutil, subprocess, sys, urllib.parse
 from pathlib import Path
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -11,6 +11,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 ROOT = Path(__file__).resolve().parent.parent
 TPL = ROOT / "template"
+STATUS_FILE = ROOT / "data" / "sites_status.json"
 TOK = re.compile(r"\{\{(#if|#each|/if|/each) ?(\w*)\}\}")
 VAR = re.compile(r"\{\{(\w+)\}\}")
 
@@ -584,7 +585,102 @@ def render(nodes, ctx):
     return "".join(out)
 
 
+def load_statuses():
+    """Загружает словарь статусов сайтов из data/sites_status.json"""
+    if not STATUS_FILE.exists():
+        statuses = {}
+        for p in sorted((ROOT / "data" / "raw").glob("*.csv")):
+            statuses[p.stem] = {"status": "active"}
+        save_statuses(statuses)
+        return statuses
+    try:
+        return json.loads(STATUS_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def save_statuses(statuses):
+    """Сохраняет словарь статусов в data/sites_status.json"""
+    STATUS_FILE.write_text(json.dumps(statuses, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def load_statuses():
+    """Загружает словарь статусов сайтов из data/sites_status.json"""
+    if not STATUS_FILE.exists():
+        statuses = {}
+        for p in sorted((ROOT / "data" / "raw").glob("*.csv")):
+            statuses[p.stem] = {"status": "active"}
+        save_statuses(statuses)
+        return statuses
+    try:
+        return json.loads(STATUS_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def save_statuses(statuses):
+    """Сохраняет словарь статусов в data/sites_status.json"""
+    STATUS_FILE.write_text(json.dumps(statuses, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def load_statuses():
+    """Загружает словарь статусов сайтов из data/sites_status.json"""
+    if not STATUS_FILE.exists():
+        statuses = {}
+        for p in sorted((ROOT / "data" / "raw").glob("*.csv")):
+            statuses[p.stem] = {"status": "active"}
+        save_statuses(statuses)
+        return statuses
+    try:
+        return json.loads(STATUS_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def save_statuses(statuses):
+    """Сохраняет словарь статусов в data/sites_status.json"""
+    STATUS_FILE.write_text(json.dumps(statuses, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
 def build(slug):
+    statuses = load_statuses()
+    slug_status_info = statuses.get(slug, {"status": "active"})
+    is_hidden = (slug_status_info.get("status") == "hidden")
+
+    out = ROOT / "sites" / slug
+
+    if is_hidden:
+        raw_csv = ROOT / "data" / "raw" / f"{slug}.csv"
+        name = slug
+        city = ""
+        if raw_csv.exists():
+            try:
+                line = raw_csv.read_text(encoding="utf-8").splitlines()[1]
+                parts = line.split(";")
+                city = parts[2].strip()
+                name = parts[3].strip()
+            except Exception:
+                pass
+
+        ctx = {
+            "slug": slug,
+            "name": name,
+            "city": city,
+            "reason": slug_status_info.get("reason", "По обращению представителя компании"),
+            "updated_at": slug_status_info.get("updated_at", "")
+        }
+
+        deactivated_tpl = (TPL / "deactivated.html").read_text(encoding="utf-8")
+        rendered_deactivated = render(parse(deactivated_tpl), ctx)
+
+        shutil.rmtree(out, ignore_errors=True)
+        out.mkdir(parents=True, exist_ok=True)
+        (out / "index.html").write_text(rendered_deactivated, encoding="utf-8")
+        (out / "robots.txt").write_text("User-agent: *\nDisallow: /\n", encoding="utf-8")
+        (out / "_headers").write_text("/*\n  X-Robots-Tag: noindex, nofollow, noarchive\n", encoding="utf-8")
+        print(f"OK [HIDDEN] {slug} (страница-заглушка сгенерирована, фото удалены)")
+        return
+
     data = json.loads((ROOT / "content" / f"{slug}.json").read_text(encoding="utf-8"))
     data = {k: v for k, v in data.items() if not k.startswith("_")}
     
@@ -645,22 +741,31 @@ def build(slug):
     data["closing_title_2"] = banner.get("title_2", "")
     data["closing_subtitle"] = banner.get("text", "")
 
-    out = ROOT / "sites" / slug
-
-    # Сохраняем флагманский эталон tom-01, если он уже существует
+    # Сохраняем флагманский эталон tom-01, если он уже существует или есть в резервной копии
     custom_index = None
     custom_css = None
     if slug == "tom-01":
+        tpl_custom_idx = TPL / "custom" / "tom-01" / "index.html"
+        tpl_custom_css = TPL / "custom" / "tom-01" / "style.css"
+        if tpl_custom_idx.exists():
+            custom_index = tpl_custom_idx.read_text(encoding="utf-8")
+        if tpl_custom_css.exists():
+            custom_css = tpl_custom_css.read_text(encoding="utf-8")
+
         idx_file = out / "index.html"
         css_file = out / "style.css"
         if idx_file.exists():
             content = idx_file.read_text(encoding="utf-8")
-            if "tom01-inline-css" in content or "Автокат-Делит" in content:
+            if "tom01-inline-css" in content and len(content) > 20000:
                 custom_index = content
+                (TPL / "custom" / "tom-01").mkdir(parents=True, exist_ok=True)
+                tpl_custom_idx.write_text(content, encoding="utf-8")
         if css_file.exists():
             content_css = css_file.read_text(encoding="utf-8")
             if len(content_css) > 5000:
                 custom_css = content_css
+                (TPL / "custom" / "tom-01").mkdir(parents=True, exist_ok=True)
+                tpl_custom_css.write_text(content_css, encoding="utf-8")
 
     shutil.rmtree(out, ignore_errors=True)
     (out / "img").mkdir(parents=True)
@@ -722,6 +827,712 @@ def build(slug):
     print(f"OK {slug} ({theme['theme_name']})")
 
 
+def build_catalog():
+    """Генерирует сводный каталог сайтов sites/index.html с фильтрами и статусами"""
+    statuses = load_statuses()
+    raw_dir = ROOT / "data" / "raw"
+    raw_files = sorted(raw_dir.glob("*.csv"))
+
+    kem_items = []
+    tom_items = []
+
+    total_active = 0
+    total_hidden = 0
+    kem_active = 0
+    tom_active = 0
+    hot_leads = 0
+
+    for rf in raw_files:
+        slug = rf.stem
+        try:
+            line = rf.read_text(encoding="utf-8").splitlines()[1]
+            parts = line.split(";")
+        except Exception:
+            continue
+
+        city = parts[2].strip()
+        name = parts[3].strip()
+        address = parts[5].strip()
+        phone = parts[6].strip()
+        site_status_raw = parts[8].strip()
+        rating = parts[10].strip()
+        reviews_count = parts[11].strip()
+
+        status_info = statuses.get(slug, {"status": "active"})
+        is_hidden = (status_info.get("status") == "hidden")
+        reason = status_info.get("reason", "По обращению представителя компании")
+
+        is_kem = "кемерово" in city.lower() or slug.startswith("kem")
+        city_key = "kem" if is_kem else "tom"
+
+        if is_hidden:
+            total_hidden += 1
+        else:
+            total_active += 1
+            if is_kem:
+                kem_active += 1
+            else:
+                tom_active += 1
+            if site_status_raw.lower() in ("нет", "нет сайта"):
+                hot_leads += 1
+
+        theme = THEMES.get(slug, DEFAULT_THEME)
+        theme_name = theme.get("theme_name", "Amber Gold")
+        theme_accent = theme.get("theme_accent", "#f5a800")
+
+        item = {
+            "slug": slug,
+            "city": city,
+            "city_key": city_key,
+            "name": name,
+            "address": address,
+            "phone": phone,
+            "site_status_raw": site_status_raw,
+            "rating": rating,
+            "reviews_count": reviews_count,
+            "is_hidden": is_hidden,
+            "reason": reason,
+            "theme_name": theme_name,
+            "theme_accent": theme_accent
+        }
+
+        if is_kem:
+            kem_items.append(item)
+        else:
+            tom_items.append(item)
+
+    def render_card(it):
+        slug = it["slug"]
+        name = html.escape(it["name"])
+        address = html.escape(it["address"])
+        phone = html.escape(it["phone"])
+        accent = it["theme_accent"]
+        theme_name = html.escape(it["theme_name"])
+        city_key = it["city_key"]
+
+        if it["is_hidden"]:
+            reason = html.escape(it["reason"])
+            return f"""
+        <div class="site-card site-card-hidden" data-city="{city_key}" data-status="hidden" style="display: none;">
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-gray">Отключён по запросу</span>
+                    <span class="slug-tag">{slug}</span>
+                </div>
+            </div>
+            <div class="theme-badge" style="background: rgba(148, 163, 184, 0.1); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.25);">
+                <span class="theme-dot" style="background: #94a3b8;"></span> {theme_name}
+            </div>
+            <h3 class="site-title">{name}</h3>
+            <p class="site-address">{address}</p>
+            <p class="site-phone muted" style="color: #64748b; font-style: italic;">Контакты скрыты по запросу</p>
+            <div class="card-hidden-reason">
+                <strong>Причина:</strong> {reason}
+            </div>
+            <div class="site-actions">
+                <a href="{slug}/index.html" class="btn btn-muted" target="_blank">Страница-заглушка →</a>
+            </div>
+        </div>"""
+
+        st_raw = it["site_status_raw"].lower()
+        if st_raw in ("нет", "нет сайта"):
+            badge_class = "badge-red"
+            badge_text = "Нет сайта"
+        elif "не работает" in st_raw:
+            badge_class = "badge-yellow"
+            badge_text = "не работает"
+        elif "микросайт" in st_raw:
+            badge_class = "badge-yellow"
+            badge_text = "микросайт 2gis.biz"
+        elif "taplink" in st_raw:
+            badge_class = "badge-yellow"
+            badge_text = "только taplink"
+        else:
+            badge_class = "badge-green"
+            badge_text = "есть сайт"
+
+        featured_class = " featured-site-card" if slug == "tom-01" else ""
+        top_leader_badge = ""
+        if slug == "tom-01":
+            top_leader_badge = '<span class="badge" style="background:#f5a623;color:#000;font-weight:800;margin-bottom:8px;display:inline-block;">★ ТОП-ЛИДЕР (5.0★ • 367 отзывов)</span>\n            '
+
+        rating_str = f"{it['rating']}★ ({it['reviews_count']})" if it["rating"] else ""
+
+        return f"""
+        <div class="site-card{featured_class}" data-city="{city_key}" data-status="active">
+            {top_leader_badge}<div class="site-card-header">
+                <div>
+                    <span class="badge {badge_class}">{badge_text}</span>
+                    <span class="slug-tag">{slug}</span>
+                </div>
+                <div class="rating">{rating_str}</div>
+            </div>
+            <div class="theme-badge" style="background: {accent}1a; color: {accent}; border: 1px solid {accent}44;">
+                <span class="theme-dot" style="background: {accent};"></span> {theme_name}
+            </div>
+            <h3 class="site-title">{name}</h3>
+            <p class="site-address">{address}</p>
+            <p class="site-phone">{phone}</p>
+            <div class="site-actions">
+                <a href="{slug}/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>"""
+
+    kem_cards_html = "".join(render_card(it) for it in kem_items)
+    tom_cards_html = "".join(render_card(it) for it in tom_items)
+
+    hidden_stat_badge = f'<div class="stat-item stat-item-hidden">Скрыто по запросу: <strong class="badge-hidden-count">{total_hidden}</strong></div>' if total_hidden > 0 else ""
+
+    tabs_html = f'''<div class="tabs-filter">
+            <button type="button" class="tab-btn active" data-filter="all">Все активные ({total_active})</button>
+            <button type="button" class="tab-btn" data-filter="kem">Кемерово ({kem_active})</button>
+            <button type="button" class="tab-btn" data-filter="tom">Томск ({tom_active})</button>'''
+    if total_hidden > 0:
+        tabs_html += f'\n            <button type="button" class="tab-btn tab-btn-hidden" data-filter="hidden">Скрытые ({total_hidden})</button>'
+    tabs_html += '\n        </div>'
+
+    catalog_html = f"""<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <title>Каталог демо-сайтов чип-тюнинга | Кемерово и Томск</title>
+    <style>
+        :root {{
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-hover: #334155;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #38bdf8;
+            --primary-hover: #0ea5e9;
+            --border: #334155;
+            --badge-red-bg: #450a0a;
+            --badge-red-text: #f87171;
+            --badge-yellow-bg: #422006;
+            --badge-yellow-text: #facc15;
+            --badge-green-bg: #064e3b;
+            --badge-green-text: #4ade80;
+        }}
+        * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+        body {{
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.5;
+            padding: 24px 16px;
+        }}
+        .container {{
+            max-width: 1200px;
+            margin: 0 auto;
+        }}
+        .disclaimer-banner {{
+            background: #1e1b4b;
+            border: 1px solid #4338ca;
+            color: #c7d2fe;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 24px;
+            text-align: center;
+        }}
+        header {{
+            text-align: center;
+            margin-bottom: 28px;
+        }}
+        header h1 {{
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }}
+        header p {{
+            color: var(--text-muted);
+            font-size: 15px;
+        }}
+        .stats-bar {{
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0 28px;
+        }}
+        .stat-item {{
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+        }}
+        .stat-item strong {{
+            color: var(--primary);
+        }}
+        .stat-item-hidden {{
+            border-color: rgba(239, 68, 68, 0.4);
+            background: rgba(239, 68, 68, 0.1);
+        }}
+        .badge-hidden-count {{
+            color: #f87171 !important;
+        }}
+        .tabs-filter {{
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+        }}
+        .tab-btn {{
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }}
+        .tab-btn:hover {{
+            color: var(--text);
+            border-color: var(--primary);
+        }}
+        .tab-btn.active {{
+            background: var(--primary);
+            color: #0f172a;
+            border-color: var(--primary);
+        }}
+        .tab-btn-hidden {{
+            border-color: rgba(239, 68, 68, 0.45);
+            color: #f87171;
+        }}
+        .tab-btn-hidden:hover {{
+            border-color: #ef4444;
+            color: #fca5a5;
+        }}
+        .tab-btn-hidden.active {{
+            background: #ef4444;
+            color: #ffffff;
+            border-color: #ef4444;
+        }}
+        .city-section {{
+            margin-bottom: 40px;
+        }}
+        .city-title {{
+            font-size: 22px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }}
+        .city-count {{
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: normal;
+        }}
+        .grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }}
+        .site-card {{
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.15s, border-color 0.15s;
+        }}
+        .site-card:hover {{
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }}
+        .featured-site-card {{
+            border: 2px solid #f5a623 !important;
+            background: linear-gradient(180deg, #1b212f 0%, #0e1117 100%) !important;
+            box-shadow: 0 4px 20px rgba(245, 166, 35, 0.15);
+        }}
+        .site-card-hidden {{
+            border-color: #334155;
+            background: #111827;
+            opacity: 0.94;
+        }}
+        .site-card-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }}
+        .badge {{
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }}
+        .badge-red {{ background: var(--badge-red-bg); color: var(--badge-red-text); }}
+        .badge-yellow {{ background: var(--badge-yellow-bg); color: var(--badge-yellow-text); }}
+        .badge-green {{ background: var(--badge-green-bg); color: var(--badge-green-text); }}
+        .badge-gray {{
+            background: #334155;
+            color: #cbd5e1;
+            border: 1px solid #475569;
+        }}
+        .slug-tag {{
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-left: 6px;
+            font-family: monospace;
+        }}
+        .rating {{
+            font-size: 13px;
+            color: #facc15;
+            font-weight: bold;
+        }}
+        .theme-badge {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            width: fit-content;
+        }}
+        .theme-dot {{
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+        }}
+        .site-title {{
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #fff;
+        }}
+        .site-address {{
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }}
+        .site-phone {{
+            font-size: 13px;
+            color: #cbd5e1;
+            font-family: monospace;
+            margin-bottom: 14px;
+        }}
+        .card-hidden-reason {{
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 12.5px;
+            color: #94a3b8;
+            margin-bottom: 14px;
+            line-height: 1.4;
+        }}
+        .card-hidden-reason strong {{
+            color: #e2e8f0;
+        }}
+        .site-actions {{
+            margin-top: auto;
+            display: flex;
+            gap: 8px;
+        }}
+        .btn {{
+            display: inline-block;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            flex: 1;
+            transition: background 0.15s, border-color 0.15s;
+        }}
+        .btn-primary {{
+            background: var(--primary);
+            color: #0f172a;
+        }}
+        .btn-primary:hover {{
+            background: var(--primary-hover);
+        }}
+        .btn-muted {{
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #475569;
+        }}
+        .btn-muted:hover {{
+            background: #334155;
+            color: #ffffff;
+            border-color: #64748b;
+        }}
+        footer {{
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="disclaimer-banner">
+            ⚠️ Демо-концепт для демонстрации возможностей. Не официальный каталог. Все данные взяты из открытых источников 2ГИС. Индексация запрещена (noindex).
+        </div>
+        
+        <header>
+            <h1>Чип-тюнинг сервисы: Демо-лендинги</h1>
+            <p>Готовые мобильные сайты для автосервисов чип-тюнинга Кемерово и Томска</p>
+            <div class="stats-bar">
+                <div class="stat-item">Активных сайтов: <strong>{total_active}</strong></div>
+                <div class="stat-item">Кемерово: <strong>{kem_active}</strong></div>
+                <div class="stat-item">Томск: <strong>{tom_active}</strong></div>
+                <div class="stat-item">Горячих лидов (без сайта): <strong>{hot_leads}</strong></div>
+                {hidden_stat_badge}
+            </div>
+        </header>
+
+        {tabs_html}
+
+        <section class="city-section" id="section-kem">
+            <h2 class="city-title">г. Кемерово <span class="city-count" id="count-kem">({kem_active} объектов)</span></h2>
+            <div class="grid">
+                {kem_cards_html}
+            </div>
+        </section>
+
+        <section class="city-section" id="section-tom">
+            <h2 class="city-title">г. Томск <span class="city-count" id="count-tom">({tom_active} объектов)</span></h2>
+            <div class="grid">
+                {tom_cards_html}
+            </div>
+        </section>
+
+        <footer>
+            Демо-концепт сайтов чип-тюнинга | Проект Antigravity | Собрано на чистом HTML/CSS без сторонних фреймворков
+        </footer>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {{
+        const tabs = document.querySelectorAll('.tab-btn');
+        const cards = document.querySelectorAll('.site-card');
+        const secKem = document.getElementById('section-kem');
+        const secTom = document.getElementById('section-tom');
+        const countKem = document.getElementById('count-kem');
+        const countTom = document.getElementById('count-tom');
+
+        function applyFilter(filter) {{
+            tabs.forEach(t => t.classList.toggle('active', t.dataset.filter === filter));
+
+            let visibleKem = 0;
+            let visibleTom = 0;
+
+            cards.forEach(card => {{
+                const isHidden = card.dataset.status === 'hidden';
+                const city = card.dataset.city;
+                let show = false;
+
+                if (filter === 'all') {{
+                    show = !isHidden;
+                }} else if (filter === 'kem') {{
+                    show = !isHidden && (city === 'kem');
+                }} else if (filter === 'tom') {{
+                    show = !isHidden && (city === 'tom');
+                }} else if (filter === 'hidden') {{
+                    show = isHidden;
+                }}
+
+                card.style.display = show ? '' : 'none';
+                if (show) {{
+                    if (city === 'kem') visibleKem++;
+                    if (city === 'tom') visibleTom++;
+                }}
+            }});
+
+            if (secKem) {{
+                secKem.style.display = visibleKem > 0 ? '' : 'none';
+                if (countKem) countKem.textContent = '(' + visibleKem + ' объектов)';
+            }}
+            if (secTom) {{
+                secTom.style.display = visibleTom > 0 ? '' : 'none';
+                if (countTom) countTom.textContent = '(' + visibleTom + ' объектов)';
+            }}
+        }}
+
+        tabs.forEach(tab => {{
+            tab.addEventListener('click', () => {{
+                applyFilter(tab.dataset.filter);
+            }});
+        }});
+
+        applyFilter('all');
+    }});
+    </script>
+</body>
+</html>
+"""
+    (ROOT / "sites" / "index.html").write_text(catalog_html, encoding="utf-8")
+    (ROOT / "sites" / "robots.txt").write_text("User-agent: *\nDisallow: /\n", encoding="utf-8")
+    (ROOT / "sites" / "_headers").write_text("/*\n  X-Robots-Tag: noindex, nofollow, noarchive\n", encoding="utf-8")
+    print(f"OK catalog sites/index.html (Активных: {total_active}, Скрытых: {total_hidden})")
+
+
+def show_status():
+    """Выводит в консоль аккуратную таблицу статусов всех 21 сайтов"""
+    statuses = load_statuses()
+    raw_files = sorted((ROOT / "data" / "raw").glob("*.csv"))
+
+    col_slug = "Слаг"
+    col_city = "Город"
+    col_name = "Название"
+    col_stat = "Статус"
+    col_reas = "Причина / Детали"
+
+    rows = []
+    active_count = 0
+    hidden_count = 0
+
+    for rf in raw_files:
+        slug = rf.stem
+        info = statuses.get(slug, {"status": "active"})
+        st = info.get("status", "active")
+        if st == "hidden":
+            hidden_count += 1
+            st_display = "HIDDEN"
+            reason = info.get("reason", "По обращению")
+        else:
+            active_count += 1
+            st_display = "active"
+            reason = "—"
+
+        city = ""
+        name = slug
+        try:
+            line = rf.read_text(encoding="utf-8").splitlines()[1]
+            parts = line.split(";")
+            city = parts[2].strip()
+            name = parts[3].strip()
+        except Exception:
+            pass
+
+        rows.append((slug, city, name, st_display, reason))
+
+    w_slug = max(len(col_slug), max(len(r[0]) for r in rows))
+    w_city = max(len(col_city), max(len(r[1]) for r in rows))
+    w_name = max(len(col_name), max(len(r[2]) for r in rows))
+    w_stat = max(len(col_stat), max(len(r[3]) for r in rows))
+    w_reas = max(len(col_reas), max(len(r[4]) for r in rows))
+
+    sep = f"+-{'-'*w_slug}-+-{'-'*w_city}-+-{'-'*w_name}-+-{'-'*w_stat}-+-{'-'*w_reas}-+"
+
+    print("\nСтатусы сайтов чип-тюнинга:")
+    print(sep)
+    print(f"| {col_slug:<{w_slug}} | {col_city:<{w_city}} | {col_name:<{w_name}} | {col_stat:<{w_stat}} | {col_reas:<{w_reas}} |")
+    print(sep)
+    for r in rows:
+        print(f"| {r[0]:<{w_slug}} | {r[1]:<{w_city}} | {r[2]:<{w_name}} | {r[3]:<{w_stat}} | {r[4]:<{w_reas}} |")
+    print(sep)
+    print(f"Всего: {len(rows)} | Активных: {active_count} | Скрытых: {hidden_count}\n")
+
+
+def hide_site(slug, reason=None):
+    """Переводит сайт в hidden, генерирует заглушку, обновляет каталог и zip"""
+    statuses = load_statuses()
+    raw_file = ROOT / "data" / "raw" / f"{slug}.csv"
+    if slug not in statuses and not raw_file.exists():
+        print(f"Ошибка: слаг '{slug}' не найден среди бизнесов проекта.")
+        sys.exit(1)
+
+    now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    reason_text = reason.strip() if reason and reason.strip() else "По обращению представителя компании"
+    statuses[slug] = {
+        "status": "hidden",
+        "reason": reason_text,
+        "updated_at": now_str
+    }
+    save_statuses(statuses)
+    print(f"Сайт '{slug}' переведён в статус HIDDEN (причина: '{reason_text}')")
+    build(slug)
+    build_catalog()
+    update_sites_zip()
+
+
+def show_site(slug):
+    """Восстанавливает сайт в active, генерирует полный сайт, обновляет каталог и zip"""
+    statuses = load_statuses()
+    raw_file = ROOT / "data" / "raw" / f"{slug}.csv"
+    if slug not in statuses and not raw_file.exists():
+        print(f"Ошибка: слаг '{slug}' не найден среди бизнесов проекта.")
+        sys.exit(1)
+
+    statuses[slug] = {
+        "status": "active"
+    }
+    save_statuses(statuses)
+    print(f"Сайт '{slug}' восстановлен в статус ACTIVE")
+    build(slug)
+    build_catalog()
+    update_sites_zip()
+
+
+def deploy():
+    """Публикует изменения на GitHub Pages (ветка gh-pages) с обходом локального прокси"""
+    print("Подготовка к деплою на GitHub Pages (ветка gh-pages)...")
+    build_catalog()
+    update_sites_zip()
+
+    subprocess.run(["git", "add", "-A", "sites"], cwd=ROOT, check=True)
+
+    res = subprocess.run(["git", "write-tree", "--prefix=sites/"], cwd=ROOT, capture_output=True, text=True, check=True)
+    tree_sha = res.stdout.strip()
+
+    res_parent = subprocess.run(["git", "rev-parse", "gh-pages"], cwd=ROOT, capture_output=True, text=True)
+    parent_commit = res_parent.stdout.strip() if res_parent.returncode == 0 else None
+
+    if parent_commit:
+        res_old_tree = subprocess.run(["git", "rev-parse", "gh-pages:"], cwd=ROOT, capture_output=True, text=True)
+        old_tree = res_old_tree.stdout.strip() if res_old_tree.returncode == 0 else None
+        if old_tree == tree_sha:
+            print("Ветка gh-pages уже синхронизирована с sites/ (дерево не изменилось).")
+            push_cmd = ["git", "-c", "http.proxy=", "-c", "https.proxy=", "push", "origin", "gh-pages"]
+            push_proc = subprocess.run(push_cmd, cwd=ROOT, capture_output=True, text=True)
+            if push_proc.returncode == 0:
+                print("GitHub Pages актуален:", push_proc.stdout.strip() or "Everything up-to-date")
+            else:
+                print("Ошибка при отправке в origin gh-pages:", push_proc.stderr)
+            return
+
+    commit_msg = "deploy: синхронизация сайтов и каталога [build.py --deploy]"
+    commit_cmd = ["git", "commit-tree", tree_sha, "-m", commit_msg]
+    if parent_commit:
+        commit_cmd.extend(["-p", parent_commit])
+
+    commit_proc = subprocess.run(commit_cmd, cwd=ROOT, capture_output=True, text=True, check=True)
+    new_commit_sha = commit_proc.stdout.strip()
+
+    subprocess.run(["git", "update-ref", "refs/heads/gh-pages", new_commit_sha], cwd=ROOT, check=True)
+    print(f"Локальная ветка gh-pages обновлена: {new_commit_sha[:7]}")
+
+    push_cmd = ["git", "-c", "http.proxy=", "-c", "https.proxy=", "push", "origin", "gh-pages"]
+    push_proc = subprocess.run(push_cmd, cwd=ROOT, capture_output=True, text=True)
+    if push_proc.returncode == 0:
+        print("Успешно опубликовано на GitHub Pages:")
+        print(push_proc.stdout.strip() or push_proc.stderr.strip())
+    else:
+        print("Ошибка при отправке на GitHub Pages:", push_proc.stderr)
+        sys.exit(1)
+
+
 def sync_template_inline_css():
     """Синхронизирует общие стили из template/style.css в <style id="site-inline-css"> в template/index.html"""
     css_content = (TPL / "style.css").read_text(encoding="utf-8")
@@ -757,8 +1568,42 @@ def update_sites_zip():
 
 
 if __name__ == "__main__":
-    sync_template_inline_css()
-    slugs = sys.argv[1:] or [p.stem for p in sorted((ROOT / "content").glob("*.json")) if p.stem != "sample"]
-    for s in slugs:
-        build(s)
-    update_sites_zip()
+    args = sys.argv[1:]
+
+    if not args:
+        # python template/build.py — полная пересборка сайтов, каталога и архива sites.zip
+        sync_template_inline_css()
+        slugs = [p.stem for p in sorted((ROOT / "content").glob("*.json")) if p.stem != "sample"]
+        for s in slugs:
+            build(s)
+        build_catalog()
+        update_sites_zip()
+    elif args[0] == "--status":
+        # python template/build.py --status — таблица статусов всех 21 сайтов
+        show_status()
+    elif args[0] == "--hide":
+        # python template/build.py --hide <slug> ["причина"]
+        if len(args) < 2:
+            print("Использование: python template/build.py --hide <slug> [\"причина\"]")
+            sys.exit(1)
+        slug = args[1]
+        reason = args[2] if len(args) > 2 else "По обращению представителя компании"
+        hide_site(slug, reason)
+    elif args[0] == "--show":
+        # python template/build.py --show <slug>
+        if len(args) < 2:
+            print("Использование: python template/build.py --show <slug>")
+            sys.exit(1)
+        slug = args[1]
+        show_site(slug)
+    elif args[0] == "--deploy":
+        # python template/build.py --deploy
+        deploy()
+    else:
+        # python template/build.py [slug ...] — пересборка указанных слагов + каталога + sites.zip
+        sync_template_inline_css()
+        slugs = [s for s in args if not s.startswith("--")]
+        for s in slugs:
+            build(s)
+        build_catalog()
+        update_sites_zip()
