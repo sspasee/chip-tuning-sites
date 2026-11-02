@@ -1,6 +1,6 @@
 # ПЛАН ПРОЕКТА: Чип-тюнинг лендинги (Кемерово / Томск)
 
-> Последнее обновление: 2026-11-02 (шаг: добавлен подтверждённый Instagram для MotorsLab kem-01 в блок соцсетей и базу CSV; валидация chip-validator OK; изменения задеплоены на GitHub Pages)
+> Последнее обновление: 2026-11-02 (шаг: акцентный цвет MotorsLab kem-01 изменён на автомобильный красный #ef4444; валидация chip-validator OK; изменения задеплоены на GitHub Pages)
 > Координатор: Antigravity (Gemini 3.8 Flash)
 
 ---
@@ -220,3 +220,4 @@ KEM-02, KEM-04, KEM-09, KEM-15, TOM-02, TOM-03
 | 2026-11-02 | Все 21 сайт и сводный каталог опубликованы на GitHub Pages: https://sspasee.github.io/chip-tuning-sites/. Репозиторий GitHub https://github.com/sspasee/chip-tuning-sites (ветка main — исходники проекта, ветка gh-pages — статика сайтов). Включён запрет поисковой индексации (robots.txt Disallow: / и meta noindex, доступ строго по прямой ссылке). Во всех 21 файлах outreach/*.md и outreach/README.md прописаны боевые ссылки на опубликованные демо-лендинги. |
 | 2026-11-02 | По запросу пользователя выполнен редизайн сайта MotorsLab (kem-01): заменён светлый фон на глубокий тёмный (#0f1a24), поверхности карточек стилизованы под контрастные тёмные блоки (#162432 / #132230), кнопки («Позвонить», «Записаться», навигация, call-bar) и акцентные элементы (ценники, бейджи, плашки) выполнены в сочном оранжевом цвете (#ff7a3d). chip-validator подтвердил Этап C (OK, 0 блокеров, reports/validation-stage-c-kem-01-dark-theme.md). Обновлены исходники и ветка gh-pages на GitHub Pages. |
 | 2026-11-02 | Добавлена подтверждённая ссылка на Instagram сервиса MotorsLab (kem-01): https://www.instagram.com/motorslab.kem?utm_source=qr. Обновлены notes в data/raw/kem-01.csv (18/18 полей), SOCIALS_MAP в template/build.py, сайт пересобран. chip-validator подтвердил Шаг 0 и Этап C (reports/validation-kem-01-instagram.md). Ветки main и gh-pages синхронизированы на GitHub Pages. |
+| 2026-11-02 | По запросу пользователя акцентная палитра MotorsLab (kem-01) заменена с оранжевого на сочный автомобильный красный (#ef4444 / #dc2626 с белым контрастным текстом #ffffff на кнопках и плашках). chip-validator подтвердил Этап C (reports/validation-stage-c-kem-01-red-theme.md). Ветки main и gh-pages синхронизированы на GitHub Pages. |

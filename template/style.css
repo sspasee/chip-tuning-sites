@@ -186,7 +186,7 @@ h1 {
 }
 
 .hero-route-btn:hover {
-  background: rgba(255, 122, 61, 0.20);
+  background: var(--amber-soft);
   border-color: var(--amber);
   color: #ffffff !important;
   transform: translateY(-1px);
