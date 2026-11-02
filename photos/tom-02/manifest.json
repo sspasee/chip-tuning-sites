@@ -1,0 +1,50 @@
+[
+  {
+    "file": "01.jpg",
+    "type": "оборудование",
+    "source_url": "https://2gis.ru/tomsk/gallery/firm/70000001066377889/photoId/30258560152639823",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  },
+  {
+    "file": "02.jpg",
+    "type": "цех",
+    "source_url": "https://2gis.ru/tomsk/gallery/firm/70000001066377889/photoId/30258560168886244",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  },
+  {
+    "file": "03.jpg",
+    "type": "оборудование",
+    "source_url": "https://2gis.ru/tomsk/gallery/firm/70000001066377889/photoId/30258560168886245",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  },
+  {
+    "file": "04.jpg",
+    "type": "оборудование",
+    "source_url": "https://2gis.ru/tomsk/gallery/firm/70000001066377889/photoId/30258560157820815",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  },
+  {
+    "file": "05.jpg",
+    "type": "работы",
+    "source_url": "https://2gis.ru/tomsk/gallery/firm/70000001066377889/photoId/30258560168886073",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  },
+  {
+    "file": "06.jpg",
+    "type": "работы",
+    "source_url": "https://2gis.ru/tomsk/gallery/firm/70000001066377889/photoId/30258560227704616",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  },
+  {
+    "file": "07.jpg",
+    "type": "цех",
+    "source_url": "https://2gis.ru/tomsk/gallery/firm/70000001066377889/photoId/30258560168886495",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  },
+  {
+    "file": "08.jpg",
+    "type": "работы",
+    "source_url": "https://2gis.ru/tomsk/gallery/firm/70000001066377889/photoId/30258560227704629",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  }
+]

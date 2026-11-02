@@ -1,0 +1,50 @@
+[
+  {
+    "file": "01.jpg",
+    "type": "фасад",
+    "source_url": "https://2gis.ru/kemerovo/gallery/firm/70000001031715594/photoId/30258560229337904",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  },
+  {
+    "file": "02.jpg",
+    "type": "цех",
+    "source_url": "https://2gis.ru/kemerovo/gallery/firm/70000001031715594/photoId/703687472852994",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  },
+  {
+    "file": "03.jpg",
+    "type": "оборудование",
+    "source_url": "https://2gis.ru/kemerovo/gallery/firm/70000001031715594/photoId/30258560229338193",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  },
+  {
+    "file": "04.jpg",
+    "type": "цех",
+    "source_url": "https://2gis.ru/kemerovo/gallery/firm/70000001031715594/photoId/30258560229337844",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  },
+  {
+    "file": "05.jpg",
+    "type": "цех",
+    "source_url": "https://2gis.ru/kemerovo/gallery/firm/70000001031715594/photoId/30258560229337843",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  },
+  {
+    "file": "06.jpg",
+    "type": "работы",
+    "source_url": "https://2gis.ru/kemerovo/gallery/firm/70000001031715594/photoId/30258560229338231",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  },
+  {
+    "file": "07.jpg",
+    "type": "оборудование",
+    "source_url": "https://2gis.ru/kemerovo/gallery/firm/70000001031715594/photoId/703687472853000",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  },
+  {
+    "file": "08.jpg",
+    "type": "работы",
+    "source_url": "https://2gis.ru/kemerovo/gallery/firm/70000001031715594/photoId/30258560229336780",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  }
+]

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <title>Каталог демо-сайтов чип-тюнинга | Кемерово и Томск</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-hover: #334155;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #38bdf8;
+            --primary-hover: #0ea5e9;
+            --border: #334155;
+            --badge-red-bg: #450a0a;
+            --badge-red-text: #f87171;
+            --badge-yellow-bg: #422006;
+            --badge-yellow-text: #facc15;
+            --badge-green-bg: #064e3b;
+            --badge-green-text: #4ade80;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.5;
+            padding: 24px 16px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .disclaimer-banner {
+            background: #1e1b4b;
+            border: 1px solid #4338ca;
+            color: #c7d2fe;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+        header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        header p {
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+        .stats-bar {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0 32px;
+        }
+        .stat-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        .stat-item strong {
+            color: var(--primary);
+        }
+        .city-section {
+            margin-bottom: 40px;
+        }
+        .city-title {
+            font-size: 22px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .city-count {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: normal;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+        .site-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.15s, border-color 0.15s;
+        }
+        .site-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        .featured-site-card {
+            border: 2px solid #f5a623 !important;
+            background: linear-gradient(180deg, #1b212f 0%, #0e1117 100%) !important;
+            box-shadow: 0 4px 20px rgba(245, 166, 35, 0.15);
+        }
+        .site-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .badge-red { background: var(--badge-red-bg); color: var(--badge-red-text); }
+        .badge-yellow { background: var(--badge-yellow-bg); color: var(--badge-yellow-text); }
+        .badge-green { background: var(--badge-green-bg); color: var(--badge-green-text); }
+        .slug-tag {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-left: 6px;
+            font-family: monospace;
+        }
+        .rating {
+            font-size: 13px;
+            color: #facc15;
+            font-weight: bold;
+        }
+        .theme-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            width: fit-content;
+        }
+        .theme-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .site-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #fff;
+        }
+        .site-address {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .site-phone {
+            font-size: 13px;
+            color: #cbd5e1;
+            font-family: monospace;
+            margin-bottom: 14px;
+        }
+        .site-actions {
+            margin-top: auto;
+            display: flex;
+            gap: 8px;
+        }
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            flex: 1;
+            transition: background 0.15s;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #0f172a;
+        }
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="disclaimer-banner">
+            ⚠️ Демо-концепт для демонстрации возможностей. Не официальный каталог. Все данные взяты из открытых источников 2ГИС. Индексация запрещена (noindex).
+        </div>
+        
+        <header>
+            <h1>Чип-тюнинг сервисы: Демо-лендинги</h1>
+            <p>Готовые мобильные сайты для автосервисов чип-тюнинга Кемерово и Томска</p>
+            <div class="stats-bar">
+                <div class="stat-item">Всего сайтов: <strong>21</strong></div>
+                <div class="stat-item">Кемерово: <strong>15</strong></div>
+                <div class="stat-item">Томск: <strong>6</strong></div>
+                <div class="stat-item">Горячих лидов (без сайта): <strong>10</strong></div>
+            </div>
+        </header>
+
+        <section class="city-section">
+            <h2 class="city-title">г. Кемерово <span class="city-count">(15 объектов)</span></h2>
+            <div class="grid">
+                
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-red">Нет сайта</span>
+                    <span class="slug-tag">kem-01</span>
+                </div>
+                <div class="rating">4.9★ (43)</div>
+            </div>
+            <div class="theme-badge" style="background: #ff55001a; color: #ff5500; border: 1px solid #ff550044;"><span class="theme-dot" style="background: #ff5500;"></span> Revo Racing Orange</div>
+            <h3 class="site-title">MotorsLab</h3>
+            <p class="site-address">ул. Дзержинского, 14</p>
+            <p class="site-phone">+79069839530</p>
+            <div class="site-actions">
+                <a href="kem-01/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-green">Есть сайт</span>
+                    <span class="slug-tag">kem-02</span>
+                </div>
+                <div class="rating">5.0★ (121)</div>
+            </div>
+            <div class="theme-badge" style="background: #0891b21a; color: #0891b2; border: 1px solid #0891b244;"><span class="theme-dot" style="background: #0891b2;"></span> Nordic Steel Teal</div>
+            <h3 class="site-title">The Car Service</h3>
+            <p class="site-address">ул. Базовая, 6а/2</p>
+            <p class="site-phone">+79955132353</p>
+            <div class="site-actions">
+                <a href="kem-02/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-yellow">не работает</span>
+                    <span class="slug-tag">kem-03</span>
+                </div>
+                <div class="rating">4.4★ (82)</div>
+            </div>
+            <div class="theme-badge" style="background: #d977061a; color: #d97706; border: 1px solid #d9770644;"><span class="theme-dot" style="background: #d97706;"></span> Safari Bronze Ochre</div>
+            <h3 class="site-title">Сафари</h3>
+            <p class="site-address">ул. Карболитовская, 20</p>
+            <p class="site-phone">+73842348515</p>
+            <div class="site-actions">
+                <a href="kem-03/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-green">Есть сайт</span>
+                    <span class="slug-tag">kem-04</span>
+                </div>
+                <div class="rating">5.0★ (66)</div>
+            </div>
+            <div class="theme-badge" style="background: #e11d481a; color: #e11d48; border: 1px solid #e11d4844;"><span class="theme-dot" style="background: #e11d48;"></span> Pandora Ruby Tech</div>
+            <h3 class="site-title">PANDORA</h3>
+            <p class="site-address">ул. Волгоградская, 51а, бокс 3</p>
+            <p class="site-phone">+7 (3842) 24-04-03</p>
+            <div class="site-actions">
+                <a href="kem-04/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-red">Нет сайта</span>
+                    <span class="slug-tag">kem-05</span>
+                </div>
+                <div class="rating">4.8★ (126)</div>
+            </div>
+            <div class="theme-badge" style="background: #2563eb1a; color: #2563eb; border: 1px solid #2563eb44;"><span class="theme-dot" style="background: #2563eb;"></span> Royal Blue Tech</div>
+            <h3 class="site-title">Корона</h3>
+            <p class="site-address">ул. Радищева, 2/2 к1, 1 этаж</p>
+            <p class="site-phone">+7‒923‒533‒16‒64</p>
+            <div class="site-actions">
+                <a href="kem-05/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-yellow">микросайт 2gis.biz</span>
+                    <span class="slug-tag">kem-06</span>
+                </div>
+                <div class="rating">4.6★ (95)</div>
+            </div>
+            <div class="theme-badge" style="background: #ea580c1a; color: #ea580c; border: 1px solid #ea580c44;"><span class="theme-dot" style="background: #ea580c;"></span> Exhaust Ember</div>
+            <h3 class="site-title">А Спектр Плюс</h3>
+            <p class="site-address">ул. Радищева, 2/2 к2, 1 этаж</p>
+            <p class="site-phone">+7 (3842) 76-28-50</p>
+            <div class="site-actions">
+                <a href="kem-06/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-red">Нет сайта</span>
+                    <span class="slug-tag">kem-07</span>
+                </div>
+                <div class="rating">4.7★ (85)</div>
+            </div>
+            <div class="theme-badge" style="background: #f59e0b1a; color: #f59e0b; border: 1px solid #f59e0b44;"><span class="theme-dot" style="background: #f59e0b;"></span> Ast Amber Gold</div>
+            <h3 class="site-title">Ast</h3>
+            <p class="site-address">ул. Автозаводская, 12Б к2, 1 этаж</p>
+            <p class="site-phone">+7-995-164-04-09</p>
+            <div class="site-actions">
+                <a href="kem-07/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-yellow">не работает</span>
+                    <span class="slug-tag">kem-08</span>
+                </div>
+                <div class="rating">4.9★ (85)</div>
+            </div>
+            <div class="theme-badge" style="background: #0284c71a; color: #0284c7; border: 1px solid #0284c744;"><span class="theme-dot" style="background: #0284c7;"></span> Club Navy Cyan</div>
+            <h3 class="site-title">Clubservice</h3>
+            <p class="site-address">ул. Мирная, 3/1</p>
+            <p class="site-phone">+7-905-919-11-99</p>
+            <div class="site-actions">
+                <a href="kem-08/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-green">Есть сайт</span>
+                    <span class="slug-tag">kem-09</span>
+                </div>
+                <div class="rating">5.0★ (61)</div>
+            </div>
+            <div class="theme-badge" style="background: #84cc161a; color: #84cc16; border: 1px solid #84cc1644;"><span class="theme-dot" style="background: #84cc16;"></span> Wrap Neon Lime</div>
+            <h3 class="site-title">Wrap Force</h3>
+            <p class="site-address">ул. Терешковой, 41/3, аллея В</p>
+            <p class="site-phone">+79511660299</p>
+            <div class="site-actions">
+                <a href="kem-09/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-yellow">только taplink-соцсети</span>
+                    <span class="slug-tag">kem-10</span>
+                </div>
+                <div class="rating">5.0★ (43)</div>
+            </div>
+            <div class="theme-badge" style="background: #8b5cf61a; color: #8b5cf6; border: 1px solid #8b5cf644;"><span class="theme-dot" style="background: #8b5cf6;"></span> Cyber Violet Stage</div>
+            <h3 class="site-title">Tun №1</h3>
+            <p class="site-address">Суховская улица, 1в, пос. Металлплощадка</p>
+            <p class="site-phone">+79236134299</p>
+            <div class="site-actions">
+                <a href="kem-10/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-red">Нет сайта</span>
+                    <span class="slug-tag">kem-12</span>
+                </div>
+                <div class="rating">5.0★ (146)</div>
+            </div>
+            <div class="theme-badge" style="background: #0d94881a; color: #0d9488; border: 1px solid #0d948844;"><span class="theme-dot" style="background: #0d9488;"></span> Mint Teal Detailing</div>
+            <h3 class="site-title">Dmd</h3>
+            <p class="site-address">д. Сухово, ул. Лунная, 2</p>
+            <p class="site-phone">+7-902-984-33-22</p>
+            <div class="site-actions">
+                <a href="kem-12/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-red">Нет сайта</span>
+                    <span class="slug-tag">kem-13</span>
+                </div>
+                <div class="rating">4.7★ (79)</div>
+            </div>
+            <div class="theme-badge" style="background: #4755691a; color: #475569; border: 1px solid #47556944;"><span class="theme-dot" style="background: #475569;"></span> Gunmetal Graphite</div>
+            <h3 class="site-title">Автодом</h3>
+            <p class="site-address">ул. Железнодорожная, 242</p>
+            <p class="site-phone">+7-923-567-00-93</p>
+            <div class="site-actions">
+                <a href="kem-13/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-red">Нет сайта</span>
+                    <span class="slug-tag">kem-14</span>
+                </div>
+                <div class="rating">4.9★ (25)</div>
+            </div>
+            <div class="theme-badge" style="background: #eab3081a; color: #eab308; border: 1px solid #eab30844;"><span class="theme-dot" style="background: #eab308;"></span> Aspeed Racing Yellow</div>
+            <h3 class="site-title">Aspeed</h3>
+            <p class="site-address">ул. Маяковского, 13 к1, 1 этаж</p>
+            <p class="site-phone">+7-904-965-77-97</p>
+            <div class="site-actions">
+                <a href="kem-14/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-green">Есть сайт</span>
+                    <span class="slug-tag">kem-15</span>
+                </div>
+                <div class="rating">4.9★ (51)</div>
+            </div>
+            <div class="theme-badge" style="background: #1d4ed81a; color: #1d4ed8; border: 1px solid #1d4ed844;"><span class="theme-dot" style="background: #1d4ed8;"></span> BMW M Motorsport Blue</div>
+            <h3 class="site-title">Про Центр</h3>
+            <p class="site-address">Советский проспект, 1а/1, 1 этаж</p>
+            <p class="site-phone">+7 (3842) 44-66-64</p>
+            <div class="site-actions">
+                <a href="kem-15/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-red">Нет сайта</span>
+                    <span class="slug-tag">kem-16</span>
+                </div>
+                <div class="rating">5.0★ (44)</div>
+            </div>
+            <div class="theme-badge" style="background: #52525b1a; color: #52525b; border: 1px solid #52525b44;"><span class="theme-dot" style="background: #52525b;"></span> Industrial Slate</div>
+            <h3 class="site-title">Поворот</h3>
+            <p class="site-address">ул. Узкоколейная, 1/1, 1 этаж</p>
+            <p class="site-phone">+7-903-984-18-58</p>
+            <div class="site-actions">
+                <a href="kem-16/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+            </div>
+        </section>
+
+        <section class="city-section">
+            <h2 class="city-title">г. Томск <span class="city-count">(6 объектов)</span></h2>
+            <div class="grid">
+                
+        <div class="site-card featured-site-card">
+            <span class="badge" style="background:#f5a623;color:#000;font-weight:800;margin-bottom:8px;display:inline-block;">★ ТОП-ВЫБОР (5.0★ · 367 отзывов)</span>
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-red">Нет сайта</span>
+                    <span class="slug-tag">tom-01</span>
+                </div>
+                <div class="rating">5.0★ (367)</div>
+            </div>
+            <div class="theme-badge" style="background: #f5a8001a; color: #f5a800; border: 1px solid #f5a80044;"><span class="theme-dot" style="background: #f5a800;"></span> Obsidian & Amber HUD</div>
+            <h3 class="site-title">Автокат-Делит</h3>
+            <p class="site-address">проспект Мира, 41/2</p>
+            <p class="site-phone">+79138151819</p>
+            <div class="site-actions">
+                <a href="tom-01/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-green">Есть сайт</span>
+                    <span class="slug-tag">tom-02</span>
+                </div>
+                <div class="rating">4.9★ (63)</div>
+            </div>
+            <div class="theme-badge" style="background: #dc26261a; color: #dc2626; border: 1px solid #dc262644;"><span class="theme-dot" style="background: #dc2626;"></span> Siberian Racing Red</div>
+            <h3 class="site-title">SibTune</h3>
+            <p class="site-address">переулок Добролюбова, 10 ст5</p>
+            <p class="site-phone">+79627774000</p>
+            <div class="site-actions">
+                <a href="tom-02/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-yellow">не работает</span>
+                    <span class="slug-tag">tom-03</span>
+                </div>
+                <div class="rating">4.6★ (62)</div>
+            </div>
+            <div class="theme-badge" style="background: #0284c71a; color: #0284c7; border: 1px solid #0284c744;"><span class="theme-dot" style="background: #0284c7;"></span> Honda Azure Sport</div>
+            <h3 class="site-title">RIDe s.s. Honda/Acura service</h3>
+            <p class="site-address">улица Герцена, 72/1 ст1</p>
+            <p class="site-phone">+7 (3822) 20-02-01</p>
+            <div class="site-actions">
+                <a href="tom-03/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-yellow">микросайт 2gis.biz</span>
+                    <span class="slug-tag">tom-04</span>
+                </div>
+                <div class="rating">4.9★ (36)</div>
+            </div>
+            <div class="theme-badge" style="background: #16a34a1a; color: #16a34a; border: 1px solid #16a34a44;"><span class="theme-dot" style="background: #16a34a;"></span> Adamant Forest Emerald</div>
+            <h3 class="site-title">Адамант</h3>
+            <p class="site-address">Усть-Керепеть, 123</p>
+            <p class="site-phone">+7 (3822) 20-04-11</p>
+            <div class="site-actions">
+                <a href="tom-04/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-red">Нет сайта</span>
+                    <span class="slug-tag">tom-05</span>
+                </div>
+                <div class="rating">5.0★ (78)</div>
+            </div>
+            <div class="theme-badge" style="background: #4f46e51a; color: #4f46e5; border: 1px solid #4f46e544;"><span class="theme-dot" style="background: #4f46e5;"></span> Deep Indigo Tech</div>
+            <h3 class="site-title">СТО-ОТС</h3>
+            <p class="site-address">улица Мокрушина, 9/2</p>
+            <p class="site-phone">+7 (3822) 200-655</p>
+            <div class="site-actions">
+                <a href="tom-05/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+
+        <div class="site-card">
+            
+            <div class="site-card-header">
+                <div>
+                    <span class="badge badge-red">Нет сайта</span>
+                    <span class="slug-tag">tom-06</span>
+                </div>
+                <div class="rating">5.0★ (32)</div>
+            </div>
+            <div class="theme-badge" style="background: #f973161a; color: #f97316; border: 1px solid #f9731644;"><span class="theme-dot" style="background: #f97316;"></span> AutoBox Lava Tangerine</div>
+            <h3 class="site-title">AutoBox Tomsk</h3>
+            <p class="site-address">улица Ивановского, 7/3 ст2</p>
+            <p class="site-phone">+7-952-897-77-45</p>
+            <div class="site-actions">
+                <a href="tom-06/index.html" class="btn btn-primary" target="_blank">Открыть премиум-сайт →</a>
+            </div>
+        </div>
+        
+            </div>
+        </section>
+
+        <footer>
+            Демо-концепт сайтов чип-тюнинга | Проект Antigravity | Собрано на чистом HTML/CSS без сторонних фреймворков
+        </footer>
+    </div>
+</body>
+</html>

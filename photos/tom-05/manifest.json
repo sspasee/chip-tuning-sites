@@ -1,0 +1,26 @@
+[
+  {
+    "file": "01.jpg",
+    "type": "интерьер",
+    "source_url": "https://2gis.ru/tomsk/gallery/firm/70000001032513702/photoId/422212503029227",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  },
+  {
+    "file": "02.jpg",
+    "type": "работы",
+    "source_url": "https://2gis.ru/tomsk/gallery/firm/70000001032513702/photoId/30258560270246679",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  },
+  {
+    "file": "03.jpg",
+    "type": "цех",
+    "source_url": "https://2gis.ru/tomsk/gallery/firm/70000001032513702/photoId/30258560270246676",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  },
+  {
+    "file": "04.jpg",
+    "type": "работы",
+    "source_url": "https://2gis.ru/tomsk/gallery/firm/70000001032513702/photoId/30258560266036852",
+    "taken_from": "карточка 2ГИС, фото владельца"
+  }
+]
