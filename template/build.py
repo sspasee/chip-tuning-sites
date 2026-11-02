@@ -6,6 +6,9 @@
 import html, json, re, shutil, sys, urllib.parse
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 ROOT = Path(__file__).resolve().parent.parent
 TPL = ROOT / "template"
 TOK = re.compile(r"\{\{(#if|#each|/if|/each) ?(\w*)\}\}")
@@ -134,14 +137,45 @@ THEMES = {
         "theme_bg": "#f3f6ee",
     },
     "kem-10": {
-        "theme_name": "Cyber Violet Stage",
-        "theme_accent": "#8b5cf6",
-        "theme_accent_dark": "#6d28d9",
-        "theme_accent_soft": "rgba(139, 92, 246, 0.12)",
-        "theme_accent_text": "#ffffff",
-        "theme_hero_ink": "#151020",
-        "theme_hero_grad": "linear-gradient(rgba(21,16,32,0.85),rgba(21,16,32,0.92))",
-        "theme_bg": "#f3f0f8",
+        "theme_name": "Tun №1 Stealth Obsidian & Amber Gold",
+        "theme_accent": "#ff9f1a",
+        "theme_accent_dark": "#e08800",
+        "theme_accent_soft": "rgba(255, 159, 26, 0.14)",
+        "theme_accent_border": "rgba(255, 159, 26, 0.45)",
+        "theme_accent_text": "#0a0b0e",
+        "theme_hero_ink": "#07080a",
+        "theme_hero_grad": "linear-gradient(rgba(7,8,10,0.80),rgba(7,8,10,0.92))",
+        "theme_bg": "#0a0b0e",
+        "theme_ink": "#e2e8f0",
+        "theme_paper": "#12141a",
+        "theme_paper_subtle": "#181a24",
+        "theme_line": "#222634",
+        "theme_line_light": "rgba(255, 255, 255, 0.08)",
+        "theme_steel": "#94a3b8",
+        "theme_steel_light": "#64748b",
+        "theme_headings": "#ffffff",
+        "theme_text_body": "#cbd5e1",
+        "theme_text_muted": "#8b9bb0",
+        "theme_card_border": "#222634",
+        "theme_price_color": "#ff9f1a",
+        "theme_service_btn_bg": "#ff9f1a",
+        "theme_service_btn_text": "#0a0b0e",
+        "theme_service_btn_hover_bg": "#e08800",
+        "theme_service_btn_hover_text": "#0a0b0e",
+        "theme_more_btn_bg": "#12141a",
+        "theme_more_btn_border": "#ff9f1a",
+        "theme_more_btn_text": "#ff9f1a",
+        "theme_more_btn_arrow": "#ff9f1a",
+        "theme_more_btn_hover_bg": "rgba(255, 159, 26, 0.14)",
+        "theme_more_btn_hover_text": "#ff9f1a",
+        "theme_badge_color": "#ff9f1a",
+        "theme_rating_color": "#ff9f1a",
+        "theme_btn_arrow_color": "#ff9f1a",
+        "theme_btn_secondary_hover_bg": "#12141a",
+        "theme_btn_secondary_hover_text": "#ff9f1a",
+        "theme_bar_bg": "#ff9f1a",
+        "theme_bar_text": "#0a0b0e",
+        "hero_photo_file": "07.jpg",
     },
     "kem-12": {
         "theme_name": "Mint Teal Detailing",
@@ -530,7 +564,14 @@ def render(nodes, ctx):
     out = []
     for n in nodes:
         if isinstance(n, str):
-            out.append(VAR.sub(lambda m: html.escape(str(ctx.get(m.group(1)) or ""), quote=True), n))
+            def _repl(m):
+                k = m.group(1)
+                val = ctx.get(k)
+                s = "" if val is None else str(val)
+                if k.endswith("_html") or k.endswith("_raw"):
+                    return s
+                return html.escape(s, quote=True)
+            out.append(VAR.sub(_repl, n))
             continue
         kind, key, body = n
         val = ctx.get(key)
@@ -629,13 +670,26 @@ def build(slug):
     for p in photos:
         shutil.copy(p, out / "img" / p.name)
         data["photos"].append({"src": f"img/{p.name}"})
-    if photos:
+    hero_photo_file = raw_theme.get("hero_photo_file")
+    if hero_photo_file and (photos_dir / hero_photo_file).exists():
+        dest_hero = out / "img" / hero_photo_file
+        if not dest_hero.exists():
+            shutil.copy(photos_dir / hero_photo_file, dest_hero)
+        data["hero_photo"] = f"img/{hero_photo_file}"
+    elif photos:
         data["hero_photo"] = f"img/{photos[0].name}"
     else:
         fallback_hero = TPL / "assets" / f"hero-business-{slug}.jpg"
         if fallback_hero.exists():
             shutil.copy(fallback_hero, out / "img" / "hero-business.jpg")
             data["hero_photo"] = "img/hero-business.jpg"
+
+    if slug == "kem-10":
+        data["brand_title_html"] = '<span class="brand-plate"><span class="plate-tu">TU</span><span class="plate-n">N</span><span class="plate-num"><span class="plate-deg">o</span>1</span></span>'
+        data["has_default_title"] = False
+    else:
+        data["brand_title_html"] = ""
+        data["has_default_title"] = True
 
     rendered_html = render(parse((TPL / "index.html").read_text(encoding="utf-8")), data)
 

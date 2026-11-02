@@ -1,16 +1,40 @@
 :root {
-  --bg: #edf1f4;
-  --ink: #0f1a24;
-  --steel: #3c5468;
-  --steel-light: #5a7388;
-  --line: #c8d3dc;
-  --line-light: #e3e9ef;
-  --amber: #f5a800;
-  --amber-dark: #cc8400;
-  --amber-soft: rgba(245, 168, 0, 0.12);
-  --accent-text: #ffffff;
-  --paper: #ffffff;
-  --paper-subtle: #f8fafb;
+  --bg: #0a0b0e;
+  --ink: #e2e8f0;
+  --hero-ink: #07080a;
+  --steel: #94a3b8;
+  --steel-light: #64748b;
+  --line: #222634;
+  --line-light: rgba(255, 255, 255, 0.08);
+  --amber: #ff9f1a;
+  --amber-dark: #e08800;
+  --amber-soft: rgba(255, 159, 26, 0.14);
+  --accent-border: rgba(255, 159, 26, 0.45);
+  --accent-text: #0a0b0e;
+  --paper: #12141a;
+  --paper-subtle: #181a24;
+  --headings: #ffffff;
+  --text-body: #cbd5e1;
+  --text-muted: #8b9bb0;
+  --card-border: #222634;
+  --price-color: #ff9f1a;
+  --service-btn-bg: #ff9f1a;
+  --service-btn-text: #0a0b0e;
+  --service-btn-hover-bg: #e08800;
+  --service-btn-hover-text: #0a0b0e;
+  --more-btn-bg: #12141a;
+  --more-btn-border: #ff9f1a;
+  --more-btn-text: #ff9f1a;
+  --more-btn-arrow: #ff9f1a;
+  --more-btn-hover-bg: rgba(255, 159, 26, 0.14);
+  --more-btn-hover-text: #ff9f1a;
+  --badge-color: #ff9f1a;
+  --rating-color: #ff9f1a;
+  --btn-arrow-color: #ff9f1a;
+  --btn-secondary-hover-bg: #12141a;
+  --btn-secondary-hover-text: #ff9f1a;
+  --bar-bg: #ff9f1a;
+  --bar-text: #0a0b0e;
   --font: Bahnschrift, "DIN Alternate", "Roboto Condensed", "Segoe UI", system-ui, sans-serif;
   --shadow-sm: 0 2px 6px rgba(15, 26, 36, 0.04);
   --shadow-md: 0 4px 14px rgba(15, 26, 36, 0.07);
@@ -67,7 +91,7 @@ a:focus-visible {
 
 /* ГЕРОЙ */
 .hero {
-  background: var(--ink) center/cover no-repeat;
+  background: var(--hero-ink, #0f1a24) center/cover no-repeat;
   color: #fff;
   min-height: 52vh;
   display: flex;
@@ -95,6 +119,44 @@ h1 {
   font-weight: 700;
   letter-spacing: -0.015em;
   overflow-wrap: anywhere;
+}
+
+/* Фирменная плашка-логотип (Tun №1) */
+.brand-plate {
+  background: #000000;
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  border-radius: 6px;
+  padding: 4px 16px 6px;
+  display: inline-flex;
+  align-items: baseline;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.03em;
+  font-weight: 800;
+}
+
+.brand-plate .plate-tu {
+  color: #ffffff;
+}
+
+.brand-plate .plate-n {
+  color: #ff9f1a;
+  margin-left: 2px;
+}
+
+.brand-plate .plate-num {
+  display: inline-flex;
+  align-items: baseline;
+  color: #ff9f1a;
+  margin-left: 1px;
+}
+
+.brand-plate .plate-deg {
+  font-size: 0.58em;
+  text-decoration: underline;
+  margin-right: 1px;
+  font-weight: 700;
+  line-height: 1;
+  transform: translateY(-0.15em);
 }
 
 .lead {
@@ -157,13 +219,15 @@ h1 {
   padding: 12px 18px;
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.28);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   transition: all 0.15s ease;
 }
 
 .hero-route-btn:hover {
-  background: rgba(255, 255, 255, 0.22);
-  border-color: rgba(255, 255, 255, 0.55);
+  background: var(--amber-soft);
+  border-color: var(--amber);
+  color: #ffffff !important;
   transform: translateY(-1px);
 }
 
@@ -213,7 +277,7 @@ h2 {
   font-size: 1.55rem;
   line-height: 1.2;
   font-weight: 700;
-  color: var(--ink);
+  color: var(--headings, var(--ink));
   letter-spacing: -0.01em;
 }
 
@@ -480,14 +544,14 @@ h2 {
   font-size: 1.08rem;
   line-height: 1.35;
   font-weight: 700;
-  color: var(--ink);
+  color: var(--headings, var(--ink));
 }
 
 .service-desc {
   margin: 6px 0 0;
   font-size: 0.92rem;
   line-height: 1.45;
-  color: var(--steel);
+  color: var(--text-muted, var(--steel));
 }
 
 .service-card-footer {
@@ -504,38 +568,39 @@ h2 {
   display: inline-flex;
   align-items: center;
   background: var(--amber-soft);
-  color: var(--amber-dark);
+  color: var(--price-color, var(--amber));
   font-weight: 700;
   font-size: 1.02rem;
   letter-spacing: -0.01em;
   padding: 4px 10px;
   border-radius: 6px;
-  border: 1px solid var(--amber);
+  border: 1px solid var(--accent-border, var(--amber));
 }
 
 .service-action-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--ink);
-  color: #ffffff !important;
+  background: var(--service-btn-bg, var(--ink));
+  color: var(--service-btn-text, #ffffff) !important;
   text-decoration: none;
   font-size: 0.88rem;
-  font-weight: 600;
+  font-weight: 700;
   padding: 7px 14px;
   border-radius: 5px;
-  transition: background 0.15s ease, transform 0.15s ease;
+  transition: background 0.15s ease, transform 0.15s ease, filter 0.15s ease;
   margin-left: auto;
 }
 
 .service-action-btn:hover {
-  background: var(--amber-dark);
-  color: var(--accent-text, #ffffff) !important;
+  background: var(--service-btn-hover-bg, var(--amber-dark));
+  color: var(--service-btn-hover-text, var(--accent-text, #ffffff)) !important;
+  transform: translateY(-1px);
 }
 
 .note {
   margin: 12px 0 0;
-  color: var(--steel);
+  color: var(--text-muted, var(--steel));
   font-size: 14.5px;
 }
 
@@ -558,9 +623,9 @@ h2 {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  color: var(--ink);
+  background: var(--more-btn-bg, var(--paper));
+  border: 1px solid var(--more-btn-border, var(--line));
+  color: var(--more-btn-text, var(--ink));
   font: inherit;
   font-size: 0.95rem;
   font-weight: 600;
@@ -573,13 +638,13 @@ h2 {
 
 .btn-more-services:hover {
   border-color: var(--amber);
-  color: var(--amber-dark);
-  background: var(--paper-subtle);
+  color: var(--more-btn-hover-text, var(--amber-dark));
+  background: var(--more-btn-hover-bg, var(--paper-subtle));
   box-shadow: var(--shadow-md);
 }
 
 .btn-more-services .btn-more-arrow {
-  color: var(--amber-dark);
+  color: var(--more-btn-arrow, var(--amber-dark));
   font-size: 1rem;
   transition: transform 0.2s ease;
 }
@@ -604,7 +669,7 @@ h2 {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--amber-dark);
+  color: var(--badge-color, var(--amber-dark));
   margin-bottom: 6px;
 }
 
@@ -617,7 +682,7 @@ h2 {
   margin: 0;
   font-size: 1.08rem;
   line-height: 1.65;
-  color: #1e2c38;
+  color: var(--text-body, #1e2c38);
 }
 
 /* ЧТО ЦЕНЯТ АВТОВЛАДЕЛЬЦЫ (ОТЗЫВЫ) */
@@ -664,13 +729,13 @@ h2 {
   font-size: 1.9rem;
   font-weight: 800;
   line-height: 1.05;
-  color: var(--amber-dark);
+  color: var(--rating-color, var(--amber-dark));
   letter-spacing: -0.02em;
 }
 
 .rating-count-sub {
   font-size: 0.88rem;
-  color: var(--steel);
+  color: var(--text-muted, var(--steel));
   font-weight: 500;
 }
 
@@ -691,13 +756,19 @@ h2 {
 }
 
 .reviews-source-btn:hover {
-  background: #ffffff;
+  background: var(--btn-secondary-hover-bg, #ffffff);
   border-color: var(--amber);
+  color: var(--btn-secondary-hover-text, var(--amber-dark)) !important;
 }
 
 .reviews-source-btn .btn-arrow {
-  color: var(--steel);
+  color: var(--btn-arrow-color, var(--steel));
   font-size: 1rem;
+  transition: color 0.15s ease;
+}
+
+.reviews-source-btn:hover .btn-arrow {
+  color: var(--amber);
 }
 
 .reviews-text-side {
@@ -711,7 +782,7 @@ h2 {
   font-size: 3rem;
   line-height: 1;
   color: var(--amber);
-  opacity: 0.45;
+  opacity: 0.75;
   font-family: Georgia, serif;
   height: 24px;
   margin-bottom: 4px;
@@ -722,7 +793,7 @@ h2 {
   margin: 0;
   font-size: 1.05rem;
   line-height: 1.6;
-  color: #1e2c38;
+  color: var(--text-body, #1e2c38);
 }
 
 /* КОНТАКТЫ И КАРТА */
@@ -762,7 +833,7 @@ h2 {
 }
 
 .contacts-dl dt {
-  color: var(--steel);
+  color: var(--text-muted, var(--steel));
   font-size: 12.5px;
   font-weight: 700;
   text-transform: uppercase;
@@ -778,11 +849,11 @@ h2 {
   margin: 2px 0 0;
   font-size: 1.05rem;
   font-weight: 500;
-  color: var(--ink);
+  color: var(--text-body, var(--ink));
 }
 
 .phone-link {
-  color: var(--ink) !important;
+  color: var(--headings, var(--ink)) !important;
   font-weight: 700;
   text-decoration: underline;
   text-decoration-color: var(--amber);
@@ -790,7 +861,7 @@ h2 {
 }
 
 .phone-link:hover {
-  color: var(--amber-dark) !important;
+  color: var(--amber) !important;
 }
 
 .directions-card {
@@ -805,7 +876,7 @@ h2 {
   margin: 0 0 10px;
   font-size: 0.95rem;
   font-weight: 700;
-  color: var(--ink);
+  color: var(--headings, var(--ink));
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -832,13 +903,19 @@ h2 {
 }
 
 .route-btn:hover {
-  background: #ffffff;
+  background: var(--btn-secondary-hover-bg, #ffffff);
   border-color: var(--amber);
+  color: var(--btn-secondary-hover-text, var(--amber-dark)) !important;
 }
 
 .route-btn .btn-arrow {
-  color: var(--steel);
+  color: var(--btn-arrow-color, var(--steel));
   font-size: 1rem;
+  transition: color 0.15s ease;
+}
+
+.route-btn:hover .btn-arrow {
+  color: var(--amber);
 }
 
 .contacts-socials-block {
@@ -853,7 +930,7 @@ h2 {
   margin: 0 0 10px;
   font-size: 0.95rem;
   font-weight: 700;
-  color: var(--ink);
+  color: var(--headings, var(--ink));
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -880,15 +957,20 @@ h2 {
 }
 
 .social-link-btn:hover {
-  background: #ffffff;
+  background: var(--btn-secondary-hover-bg, #ffffff);
   border-color: var(--amber);
-  color: var(--amber-dark) !important;
+  color: var(--btn-secondary-hover-text, var(--amber-dark)) !important;
   transform: translateY(-1px);
 }
 
 .social-link-btn .btn-arrow {
-  color: var(--steel-light);
+  color: var(--btn-arrow-color, var(--steel-light));
   font-size: 0.85rem;
+  transition: color 0.15s ease;
+}
+
+.social-link-btn:hover .btn-arrow {
+  color: var(--amber);
 }
 
 .map-card {
@@ -917,7 +999,7 @@ h2 {
   background: var(--amber);
   border-radius: 12px;
   padding: clamp(34px, 5.5vw, 48px) clamp(24px, 5vw, 42px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -929,7 +1011,7 @@ h2 {
 
 .closing-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
 }
 
 .closing-title {
@@ -946,10 +1028,10 @@ h2 {
   font-size: 1.05rem;
   line-height: 1.45;
   color: var(--accent-text, #17232e);
-  opacity: 0.92;
+  opacity: 0.95;
   margin: 14px 0 22px;
   max-width: 28rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .closing-action {
@@ -967,21 +1049,23 @@ h2 {
   align-items: center;
   gap: 8px;
   text-decoration: none;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
   white-space: nowrap;
 }
 
 .closing-call-btn:hover {
   transform: translateY(-1px);
-  filter: brightness(1.15);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  background: #162432;
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
 
 .closing-call-icon {
   font-size: 1.15rem;
   line-height: 1;
+  color: var(--amber);
 }
 
 .closing-call-phone {
@@ -1015,12 +1099,16 @@ h2 {
   padding-top: 18px;
   padding-bottom: 28px;
   border-top: 1px solid var(--line);
-  color: var(--steel);
+  color: var(--text-muted, var(--steel));
   font-size: 14px;
 }
 
 .foot a {
-  color: var(--steel);
+  color: var(--text-muted, var(--steel));
+}
+
+.foot a:hover {
+  color: var(--amber);
 }
 
 .bar {
@@ -1029,8 +1117,8 @@ h2 {
   right: 0;
   bottom: 0;
   z-index: 90;
-  background: var(--ink);
-  color: #fff !important;
+  background: var(--bar-bg, var(--ink));
+  color: var(--bar-text, #fff) !important;
   text-align: center;
   font-weight: 700;
   text-decoration: none;
